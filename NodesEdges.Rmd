@@ -1,0 +1,49 @@
+ ---
+title: "NodesEdges"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("tidyverse")
+library("tidygraph")
+library("ggraph")
+library("igraph")
+```
+
+```{r}
+file_path <- "all_tanh.csv"
+prop_df <- read_csv(file_path)
+prop_df
+```
+```{r}
+controllers=prop_df %>%
+  distinct(CONTROLLER) %>%
+  rename(Id=CONTROLLER)
+
+outputs=prop_df %>%
+  distinct(INPUT) %>%
+  rename(Id=INPUT)
+
+nodes <- full_join(controllers,outputs, by="Id")
+```
+
+```{r}
+# Create vector of equal weights (1)
+one_vec <- rep(1, length(prop_df$TOTAL))
+
+tibble_df <- tibble(source=prop_df$INPUT, target=prop_df$CONTROLLER, weight=one_vec, color_col=prop_df$EDGE, thickness=prop_df$TOTAL)
+
+tibble_df
+```
+
+```{r}
+# Table for edges
+write.csv(tibble_df, file="C:/Users/ericj/metabolite_files/GephiVizFiles/edges_table.csv", row.names=FALSE)
+
+# Table for nodes
+write.csv(nodes, file="C:/Users/ericj/metabolite_files/GephiVizFiles/nodes_table_all.csv", row.names=FALSE)
+
+# Thickness column add-on
+write.csv(prop_df$TOTAL, file="C:/Users/ericj/metabolite_files/GephiVizFiles/thickness.csv", row.names=FALSE)
+```
