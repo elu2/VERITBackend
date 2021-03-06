@@ -1,5 +1,5 @@
 ---
-title: "NoneControllers"
+title: "NCRestructure"
 output: pdf_document
 ---
 
@@ -41,7 +41,6 @@ df
 ```
 
 ```{r}
-df
 unique_papers <- unique(df$SEEN_IN)
 (length(unique_papers))
 ```
@@ -74,5 +73,5 @@ none_counted_df <- sqldf("SELECT INPUT, OUTPUT, CONTROLLER, EVENT_LABEL, COUNT(*
 none_counted_df
 ```
 ```{r}
-write.csv(none_counted_df, file="C:/Users/ericj/metabolite_files/GephiVizFiles/none_counted_df.csv", row.names=FALSE)
+write.csv(none_counted_df, file="C:/Users/ericj/metabolite_files/GephiVizFiles/NCCount_df.csv", row.names=FALSE)
 ```

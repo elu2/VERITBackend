@@ -11,11 +11,23 @@ library("ggraph")
 library("igraph")
 ```
 
+```{r Combine}
+# Run this chunk to combine all Activations and None Controller csv files.
+# The Activations csv should be titled: all_tanh.csv
+# The NONE Controllers csv should be titled: NC_all_tanh.csv
+activation <- read_csv("Act_tanh.csv")
+none_cont <- read_csv("NC_tanh.csv")
+prop_df <- rbind(activation, none_cont)
+prop_df
+```
+
 ```{r}
-file_path <- "all_tanh.csv"
+# Run only if doing Act_tanh.csv
+file_path <- "Act_tanh.csv"
 prop_df <- read_csv(file_path)
 prop_df
 ```
+
 ```{r}
 controllers=prop_df %>%
   distinct(CONTROLLER) %>%
