@@ -6,12 +6,13 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(sqldf)
+library(dplyr)
 ```
 
 ```{r Initialize rbinding base table}
-file_names <- list.files(path="C:/Users/ericj/metabolite_files/feb_chebi_tsvs/")
+file_names <- list.files(path="C:/Users/ericj/metabolite_files/metabolite_tsvs/")
 print(length(file_names))
-base <- read.table(sprintf("C:/Users/ericj/metabolite_files/feb_chebi_tsvs/%s", file_names[1]), sep="\t", header=TRUE, fill=TRUE, quote="\"")[c(1:5, 19)]
+base <- read.table(sprintf("C:/Users/ericj/metabolite_files/metabolite_tsvs/%s", file_names[1]), sep="\t", header=TRUE, fill=TRUE, quote="\"")[c(1:5, 19)]
 base
 ```
 
@@ -23,7 +24,7 @@ for (file in file_names){
     print(i)
   }
   
-  binder <- read.table(sprintf("C:/Users/ericj/metabolite_files/feb_chebi_tsvs/%s", file), sep="\t", header=TRUE, fill=TRUE, quote="\"")[c(1:5, 19)]
+  binder <- read.table(sprintf("C:/Users/ericj/metabolite_files/metabolite_tsvs/%s", file), sep="\t", header=TRUE, fill=TRUE, quote="\"")[c(1:5, 19)]
   base <- rbind(base, binder)
   i = i + 1
 }
@@ -32,6 +33,9 @@ df <- data.frame(base)
 
 # Rename columns without period incompatibilities
 colnames(df) <- c("INPUT", "OUTPUT", "CONTROLLER", "EVENT_ID", "EVENT_LABEL", "SEEN_IN")
+
+# Remove anomalous rows
+df <- sqldf("SELECT * FROM df WHERE SEEN_IN != ''")
 
 df
 ```
