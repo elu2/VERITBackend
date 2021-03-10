@@ -1,0 +1,49 @@
+## ----setup, include=FALSE------------------------------------------------------------------------------
+knitr::opts_chunk$set(echo = TRUE)
+library("tidyverse")
+library("tidygraph")
+library("ggraph")
+library("igraph")
+
+
+## ----Combine-------------------------------------------------------------------------------------------
+# Run this chunk to combine all Activations and None Controller csv files.
+# The Activations csv should be titled: all_tanh.csv
+# The NONE Controllers csv should be titled: NC_all_tanh.csv
+activation <- read_csv("Act_tanh.csv")
+none_cont <- read_csv("NC_tanh.csv")
+prop_df <- rbind(activation, none_cont)
+prop_df
+
+
+## ------------------------------------------------------------------------------------------------------
+controllers=prop_df %>%
+  distinct(CONTROLLER) %>%
+  rename(Id=CONTROLLER)
+
+outputs=prop_df %>%
+  distinct(INPUT) %>%
+  rename(Id=INPUT)
+
+nodes <- full_join(controllers,outputs, by="Id")
+
+
+## ------------------------------------------------------------------------------------------------------
+# Create vector of equal weights (1)
+one_vec <- rep(1, length(prop_df$TOTAL))
+
+tibble_df <- tibble(source=prop_df$INPUT, target=prop_df$CONTROLLER, weight=one_vec, color_col=prop_df$EDGE, thickness=prop_df$TOTAL)
+
+tibble_df
+
+
+## ------------------------------------------------------------------------------------------------------
+# Table for edges
+write.csv(tibble_df, file="C:/Users/ericj/metabolite_files/GephiVizFiles/edges_table.csv", row.names=FALSE)
+
+# Table for nodes
+write.csv(nodes, file="C:/Users/ericj/metabolite_files/GephiVizFiles/nodes_table_all.csv", row.names=FALSE)
+
+# Thickness column add-on
+write.csv(prop_df$TOTAL, file="C:/Users/ericj/metabolite_files/GephiVizFiles/thickness.csv", row.names=FALSE)
+
