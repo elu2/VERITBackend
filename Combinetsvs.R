@@ -12,6 +12,7 @@ print(length(file_names))
 
 ## ----rbind all subsequent files------------------------------------------------------------------------
 # To start from beginning: use 1 as lower bound for index. To start from wherever left off, change lower bound to what log last reads.
+base <- data.frame(matrix(ncol = 6, nrow = 0))
 
 i = 0
 for (file in file_names[1:length(file_names)]){
