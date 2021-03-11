@@ -13,12 +13,39 @@
 
 import networkx as nx
 from networkx.drawing.nx_agraph import write_dot
-
+import os
+import csv
 
 #Read the csv file into a networkx graph object
+g = nx.read_edgelist("edges_fixed.txt", create_using=nx.DiGraph, delimiter=",", nodetype=str, data=(("color_col",float),("weight",int),("penwidth",int)))
 
-g = nx.read_edgelist("subset_query_edges.txt", create_using=nx.DiGraph, delimiter=",", nodetype=str, data=(("color_col",float),("weight",int),("thickness",int)))
+#Add edge colorscheme, change to gradients later
+for e in g.edges():
+    if g.edges[e]["color_col"]<.5:
+        g.edges[e]["color"]="blue"
+    elif g.edges[e]["color_col"]==.5:
+        g.edges[e]["color"]="gray"
+    else:
+        g.edges[e]["color"]="red"
+        
+#Make node dictionary, format=node:node_label
+node_names={}
+with open("nodes.txt","r") as infile:
+    reader=csv.reader(infile)
+    node_names={row[0]:row[1] for row in reader}
 
+#Add node labels
+for n in g.nodes():
+    parts=node_names[n].split("::")
+    #Format: id (common name)
+    g.nodes[n]["label"]=n+" ("+parts[0]+")"
+  
+#Write g to dot file
+out_file_name="reach_subset.dot"
+write_dot(g,"reach_subset.dot") 
 
-write_dot(g,"reach_subset.dot")
+#Create visualization
+os.system("sfdp -Goverlap=prism -Nstyle=filled -Nfontcolor=white -Goutputorder=edgesfirst -Tsvg "+out_file_name+" -O")
+os.system("sfdp -Goverlap=prism -Nstyle=filled -Nfontcolor=white -Goutputorder=edgesfirst -Tsvg "+other+" -O")
+
 
