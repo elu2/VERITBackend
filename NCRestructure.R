@@ -3,7 +3,7 @@ setwd("/xdisk/guangyao/REACH2/REACHVisualization/")
 library(sqldf)
 library(dplyr)
 
-df = read_csv("base_df.csv")
+df = read.csv("base_df.csv")
 
 unique_papers <- unique(df$SEEN_IN)
 

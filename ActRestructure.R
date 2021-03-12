@@ -3,7 +3,7 @@ setwd("/xdisk/guangyao/REACH2/REACHVisualization/")
 library(sqldf)
 library(dplyr)
 
-df = read_csv("base_df.csv")
+df = read.csv("base_df.csv")
 
 ## ----Only Pos Neg Activations--------------------------------------------------------------------------
 # Here, all "NONE" Controllers are omitted. So, transcription, sumoylation, etc. are not in this dataframe.
