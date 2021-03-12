@@ -12,4 +12,4 @@ pos_neg_counted_df <- sqldf("SELECT INPUT, OUTPUT, CONTROLLER, EVENT_LABEL, COUN
 
 ## ------------------------------------------------------------------------------------------
 # All Pos/Neg Activation event pairs
-write.csv(pos_neg_counted_df, file = "./ActCount_df.csv", row.names=FALSE)
+write.csv(pos_neg_counted_df, file = "ActCount_df.csv", row.names=FALSE)

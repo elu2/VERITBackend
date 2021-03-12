@@ -1,5 +1,5 @@
 ## ----setup, include=FALSE------------------------------------------------------------------------------
-knitr::opts_chunk$set(echo = TRUE)
+setwd("/xdisk/guangyao/REACH2/REACHVisualization/")
 library("tidyverse")
 library("tidygraph")
 library("ggraph")
@@ -39,11 +39,11 @@ tibble_df
 
 ## ------------------------------------------------------------------------------------------------------
 # Table for edges
-write.csv(tibble_df, file="C:/Users/ericj/metabolite_files/GephiVizFiles/edges_table.csv", row.names=FALSE)
+write.csv(tibble_df, file="edges_table.csv", row.names=FALSE)
 
 # Table for nodes
-write.csv(nodes, file="C:/Users/ericj/metabolite_files/GephiVizFiles/nodes_table_all.csv", row.names=FALSE)
+write.csv(nodes, file="nodes_table_all.csv", row.names=FALSE)
 
 # Thickness column add-on
-write.csv(prop_df$TOTAL, file="C:/Users/ericj/metabolite_files/GephiVizFiles/thickness.csv", row.names=FALSE)
+write.csv(prop_df$TOTAL, file="thickness.csv", row.names=FALSE)
 

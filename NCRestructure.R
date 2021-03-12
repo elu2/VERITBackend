@@ -30,4 +30,4 @@ none_counted_df <- sqldf("SELECT INPUT, OUTPUT, CONTROLLER, EVENT_LABEL, COUNT(*
 
 
 ## ------------------------------------------------------------------------------------------------------
-write.csv(none_counted_df, file="./NCCount_df.csv", row.names=FALSE)
+write.csv(none_counted_df, file="NCCount_df.csv", row.names=FALSE)
