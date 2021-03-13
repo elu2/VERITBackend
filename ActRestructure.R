@@ -7,7 +7,7 @@ df = read.csv("base_df.csv")
 
 ## ----Only Pos Neg Activations--------------------------------------------------------------------------
 # Here, all "NONE" Controllers are omitted. So, transcription, sumoylation, etc. are not in this dataframe.
-pos_neg_counted_df <- sqldf("SELECT INPUT, OUTPUT, CONTROLLER, EVENT_LABEL, COUNT(*) AS COUNTER, SEEN_IN FROM df WHERE CONTROLLER!='NONE' GROUP BY OUTPUT, CONTROLLER, EVENT_LABEL ORDER BY COUNTER DESC")
+pos_neg_counted_df <- sqldf("SELECT INPUT, OUTPUT, CONTROLLER, EVENT_LABEL, COUNT(*) AS COUNTER, SEEN_IN FROM df WHERE EVENT_LABEL == 'Activation (Positive)' or EVENT_LABEL == 'Activation (Negative)' GROUP BY OUTPUT, CONTROLLER, EVENT_LABEL ORDER BY COUNTER DESC")
 
 
 ## ------------------------------------------------------------------------------------------

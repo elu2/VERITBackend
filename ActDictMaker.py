@@ -31,10 +31,10 @@ for key in interaction_dict:
 for key in interaction_dict:
     split_key = key.split("|")
     count = interaction_dict[key][0]
-    if split_key[2] == "pos":
+    if split_key[-1] == "pos":
         prop_dict[key[:-4]][0] += count
         prop_dict[key[:-4]][1] += count
-    if split_key[2] == "neg":
+    if split_key[-1] == "neg":
         prop_dict[key[:-4]][1] += count
 
 # for each entry in prop_dict, divide pos by total to get the proportion. Then input into the modified tanh function to get our edge value.
@@ -54,7 +54,8 @@ df_dict = {
     "TOTAL": [],
 }
 for key in prop_dict:
-    met_input, met_cont = key.split("|")
+    met_input = key.split("|")[-2]
+    met_cont = key.split("|")[-1]
     df_dict["INPUT"].append(met_input)
     df_dict["CONTROLLER"].append(met_cont)
     df_dict["EDGE"].append(prop_dict[key][2])
@@ -69,9 +70,9 @@ cont_spec = prop_df["CONTROLLER"]
 ID_PAIRS = {"ID_PAIRS": []}
 
 for i in range(0, len(input_spec)):
-    if len(input_spec[i]) > 5:
+    if len(input_spec[i]) > 8:
         input_spec_id = input_spec[i].split(":")[-2] + ":" + input_spec[i].split(":")[-1]
-    if len(cont_spec[i]) > 5:
+    if len(cont_spec[i]) > 8:
         cont_spec_id = cont_spec[i].split(":")[-2] + ":" + cont_spec[i].split(":")[-1]
     else:
         input_spec_id = input_spec
@@ -112,7 +113,8 @@ prop_df_reduced = pd.concat([with_id, pos_t_df], axis=1, join="inner")
 
 in_cont_id = {"INPUT_ID" : [], "CONT_ID" : []}
 for pair in prop_df_reduced["ID_PAIRS"]:
-    in_id, cont_id = pair.split("|") 
+    in_id = pair.split("|")[-2]
+    cont_id = pair.split("|")[-1]
     in_cont_id["INPUT_ID"].append(in_id)
     in_cont_id["CONT_ID"].append(cont_id)
 in_cont_id_df = pd.DataFrame.from_dict(in_cont_id)

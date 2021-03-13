@@ -1,19 +1,15 @@
 ## ----setup, include=FALSE------------------------------------------------------------------------------
 setwd("/xdisk/guangyao/REACH2/REACHVisualization/")
-library("tidyverse")
-library("tidygraph")
-library("ggraph")
-library("igraph")
-
+library("tibble")
+library("dplyr")
 
 ## ----Combine-------------------------------------------------------------------------------------------
 # Run this chunk to combine all Activations and None Controller csv files.
 # The Activations csv should be titled: all_tanh.csv
 # The NONE Controllers csv should be titled: NC_all_tanh.csv
-activation <- read_csv("Act_tanh.csv")
-none_cont <- read_csv("NC_tanh.csv")
+activation <- read.csv("Act_tanh.csv")
+none_cont <- read.csv("NC_tanh.csv")
 prop_df <- rbind(activation, none_cont)
-prop_df
 
 
 ## ------------------------------------------------------------------------------------------------------
@@ -33,8 +29,6 @@ nodes <- full_join(controllers,outputs, by="Id")
 one_vec <- rep(1, length(prop_df$TOTAL))
 
 tibble_df <- tibble(source=prop_df$INPUT, target=prop_df$CONTROLLER, weight=one_vec, color_col=prop_df$EDGE, thickness=prop_df$TOTAL)
-
-tibble_df
 
 
 ## ------------------------------------------------------------------------------------------------------
