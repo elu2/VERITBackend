@@ -58,6 +58,7 @@ thickness = edges_table["thickness"].tolist()
 
 all_species = list(set(sources + targets))
 
+# Initialize a graph dictionary. A key is made for every species. The ones that appear as a source has its target appended to the value.
 i = 0
 graph_dict = {}
 for i in range(0, len(all_species)):
@@ -69,7 +70,7 @@ for i in range(0, len(sources)):
 all_species_id = []
 i=0
 for species in all_species:
-    if len(species) > 5:
+    if len(species) > 8:
         all_species_id.append(species.split(":")[-2] + ":" + species.split(":")[-1])
     else:
         all_species_id.append(species)
@@ -160,7 +161,7 @@ node_labels = all_nodes_table["Label"]
 labels_dict = {}
 
 for i in range(0, len(node_names)):
-    if len(node_names[i]) > 5:
+    if len(node_names[i]) > 8:
         node_id_split = node_names[i].split(":")
         node_id = node_id_split[-2] + ":" + node_id_split[-1]
         labels_dict[node_id] = node_labels[i]
