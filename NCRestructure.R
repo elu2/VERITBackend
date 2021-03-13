@@ -5,6 +5,8 @@ library(dplyr)
 
 file_names <- list.files(path="./papers_as_tsv/")
 names <- c("INPUT", "OUTPUT", "CONTROLLER", "EVENT_ID", "EVENT_LABEL", "SEEN_IN")
+NC_intermediate <- data.frame(matrix(ncol = 6, nrow = 0))
+colnames(NC_intermediate) <- names
 write.table(NC_intermediate, file="NCCount_df_inter.csv", row.names=FALSE, col.names=TRUE, sep=",", append=TRUE)
 
 ## ----Unlabelled dataframe for NONE Controllers---------------------------------------------------------
