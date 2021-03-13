@@ -5,6 +5,7 @@ library(dplyr)
 
 file_names <- list.files(path="./papers_as_tsv/")
 names <- c("INPUT", "OUTPUT", "CONTROLLER", "EVENT_ID", "EVENT_LABEL", "SEEN_IN")
+column_classes <- c("character", "character", "character", "character", "character", "character")
 NC_intermediate <- data.frame(matrix(ncol = 6, nrow = 0))
 colnames(NC_intermediate) <- names
 write.table(NC_intermediate, file="NCCount_df_inter.csv", row.names=FALSE, col.names=TRUE, sep=",", append=TRUE)
@@ -21,8 +22,9 @@ for (file in file_names[1:length(file_names)]){
     write.table(paste(Sys.time(), ": ", i, " NC papers counted."), file = "NCCounting.log", row.name=FALSE, col.names=FALSE, append=TRUE, quote=FALSE)
   }
   
-  pap_sub <- read.table(sprintf("./papers_as_tsv/%s", file), sep="\t", header=TRUE, fill=TRUE, quote="\"")[c(1:5, 19)]
+  pap_sub <- read.table(sprintf("./papers_as_tsv/%s", file), sep="\t", header=TRUE, fill=TRUE, quote="\"", colClasses=column_classes)[c(1:5, 19)]
   colnames(pap_sub) <- names
+
   # Subset of paper: wherever controller is NONE
   eId_sub <- sqldf("SELECT INPUT, EVENT_ID, EVENT_LABEL FROM pap_sub WHERE CONTROLLER = 'NONE'")
   
@@ -41,7 +43,6 @@ write.table(NC_intermediate, file="NCCount_df_inter.csv", row.names=FALSE, col.n
 write.table(paste(Sys.time(), ": ", i, " papers in dataframe."), file = "NCCounting.log", row.name=FALSE, col.names=FALSE, append=TRUE, quote=FALSE)
 # All appends have been finished.
 write.table("***RAN TO COMPLETION***", file = "NCCounting.log", row.name=FALSE, col.names=FALSE, append=TRUE, quote=FALSE)
-
 
 uncounted <- read.csv("NCCount_df_inter.csv")
 none_counted_df <- sqldf("SELECT INPUT, OUTPUT, CONTROLLER, EVENT_LABEL, COUNT(*) AS COUNTER, SEEN_IN FROM uncounted GROUP BY OUTPUT, CONTROLLER, EVENT_LABEL ORDER BY COUNTER DESC")
