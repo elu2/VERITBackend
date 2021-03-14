@@ -27,15 +27,3 @@ for query in queries_id:
 
 if all_in == True:
     print("All queries in network.")
-
-# Gets random species
-import random as r
-for i in range(0, 10):
-    print(all_species[r.randint(0, len(all_species))])
-
-
-
-
-
-
-
