@@ -161,7 +161,7 @@ node_labels = all_nodes_table["Label"]
 labels_dict = {}
 
 for i in range(0, len(node_names)):
-    if len(node_names[i]) > 8:
+    if len(str(node_names[i])) > 8:
         node_id_split = node_names[i].split(":")
         node_id = node_id_split[-2] + ":" + node_id_split[-1]
         labels_dict[node_id] = node_labels[i]
