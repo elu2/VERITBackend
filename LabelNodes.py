@@ -28,5 +28,6 @@ labelled_dict = {
 }
 
 labelled_df = pd.DataFrame.from_dict(labelled_dict)
+labelled_df = labelled_df.drop_duplicates(subset='Only_Id', keep="first")
 
 labelled_df.to_csv("nodes_table_all_labelled.csv")
