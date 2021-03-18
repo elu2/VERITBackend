@@ -69,6 +69,8 @@ input_spec = prop_df["INPUT"]
 cont_spec = prop_df["CONTROLLER"]
 ID_PAIRS = {"ID_PAIRS": []}
 
+# Append input and controller to dictionary as value.
+# Conditional on length of the species because only species with char length < 8 will not have a colon to split on.
 for i in range(0, len(input_spec)):
     if len(input_spec[i]) > 8:
         input_spec_id = input_spec[i].split(":")[-2] + ":" + input_spec[i].split(":")[-1]
