@@ -24,4 +24,3 @@ for label in df.EVENT_LABEL:
 df = pd.concat([df, pd.DataFrame(numeric_labels)], axis=1)
 
 df.to_csv("ActLab_df.csv")
-

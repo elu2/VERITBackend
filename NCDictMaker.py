@@ -134,14 +134,10 @@ in_cont_id = {"INPUT_ID" : [], "CONT_ID" : []}
 for pair in prop_df_reduced["ID_PAIRS"]:
     in_id = pair.split("|")[-2]
     cont_id = pair.split("|")[-1]
-    in_cont_id["INPUT_ID"].append(in_id)
+    in_cont_id["INPUT_ID"].append(in_id[:-2])
     in_cont_id["CONT_ID"].append(cont_id)
 in_cont_id_df = pd.DataFrame.from_dict(in_cont_id)
 with_ids = pd.concat([in_cont_id_df, prop_df_reduced], axis=1)
 
 
 with_ids.to_csv("NC_tanh.csv")
-
-
-
-
