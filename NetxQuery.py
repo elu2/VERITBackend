@@ -3,7 +3,6 @@ import pandas as pd
 import math
 import itertools as it
 import numpy as np
-import random
 
 edges_df = pd.read_csv('edges_table.csv')
 edges_df = edges_df.drop_duplicates(subset=['source_id', 'target_id'], keep="first")

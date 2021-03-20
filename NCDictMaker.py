@@ -85,13 +85,13 @@ input_spec = prop_df["INPUT"]
 cont_spec = prop_df["CONTROLLER"]
 ID_PAIRS = {"ID_PAIRS": []}
 for i in range(0, len(input_spec)):
-    if len(input_spec[i]) > 8:
+    if ":" in input_spec[i]:
         input_spec_id = input_spec[i].split(":")[-2] + ":" + input_spec[i].split(":")[-1]
-    if len(cont_spec[i]) > 8:
+    if ":" in cont_spec[i]:
         cont_spec_id = cont_spec[i].split(":")[-2] + ":" + cont_spec[i].split(":")[-1]
     else:
-        input_spec_id = input_spec
-        cont_spec_id = cont_spec
+        input_spec_id = input_spec[i]
+        cont_spec_id = cont_spec[i]
 
     ID_PAIRS["ID_PAIRS"].append(f"{input_spec_id}|{cont_spec_id}")
     i += 1

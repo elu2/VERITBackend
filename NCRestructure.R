@@ -47,5 +47,6 @@ write.table("***RAN TO COMPLETION***", file = "NCCounting.log", row.name=FALSE, 
 uncounted <- read.csv("NCCount_df_inter.csv")
 none_counted_df <- sqldf("SELECT INPUT, OUTPUT, CONTROLLER, EVENT_LABEL, COUNT(*) AS COUNTER, SEEN_IN FROM uncounted GROUP BY OUTPUT, CONTROLLER, EVENT_LABEL ORDER BY COUNTER DESC")
 
+# Removes anomalous rows
 cleaned <- sqldf("SELECT * FROM none_counted_df WHERE SEEN_IN != ''")
 write.csv(cleaned, file="NCCount_df.csv", row.names=FALSE)
