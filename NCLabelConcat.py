@@ -10,7 +10,11 @@ df = pd.read_csv(file)
 
 numeric_labels = {"NUM_LABEL": []}
 for label in df.EVENT_LABEL:
-    _, pos_neg, label_type = label.split(" ")
+    # If anomalous label is hit, ignore.
+    try:
+        _, pos_neg, label_type = label.split(" ")
+    except ValueError:
+        continue
     
     if pos_neg == "(Negative)": 
         if label_type == "Amount":

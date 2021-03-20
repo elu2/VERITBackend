@@ -12,7 +12,7 @@ only_ids = []
 with open(file_name, "r", encoding="UTF-8") as nodes_table:
     reader = nodes_table.readlines()
     for row in reader[1:]:
-        if len(row) > 8:
+        if ":" in row:
             reader_s.append(row.strip('"')[:-2])
             node_labels.append(row.split("::")[0][1:])
             only_ids.append(row.split(":")[-2] + ":" + row.split(":")[-1][:-2])
