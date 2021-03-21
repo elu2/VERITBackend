@@ -13,6 +13,8 @@ prop_df <- rbind(activation, none_cont)
 
 prop_df <- prop_df %>%
   filter(!grepl('uaz', ID_PAIRS))
+prop_df <- prop_df %>%
+  filter(!grepl('UAZ', ID_PAIRS))
 
 ## ------------------------------------------------------------------------------------------------------
 controllers=prop_df %>%
