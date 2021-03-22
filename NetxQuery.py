@@ -28,6 +28,9 @@ for query_pair in q_combinations:
     except nx.NetworkXNoPath:
         print(f"No path for {source} -> {target}")
         pass
+    except nx.NodeNotFound:
+        print(f"A node was not found.")
+        pass
 
 query_nodes = {"Query_Ids": []}
 for key in stored_paths:

@@ -3,11 +3,36 @@
 
 import pandas as pd
 
-
 # For NONE CONTROLLERS:
-file = "NCCount_df.csv"
-df = pd.read_csv(file)
+# Gets rid of the .x suffixes. All the information needed is already provided by EVENT_LABEL column.
+df = pd.read_csv("NCCount_df.csv", encoding="UTF-8")
 
+redone_dict = {
+    "OUTPUT" : [],
+    "CONTROLLER" : []
+}
+
+outputs = df["OUTPUT"]
+controllers = df["CONTROLLER"]
+
+for i in range(len(outputs)):
+    if "." in outputs[i]:
+        redone_dict["OUTPUT"].append(outputs[i][:-2])
+    else:
+        redone_dict["OUTPUT"].append(outputs[i])
+
+for i in range(len(controllers)):
+    if "." in outputs[i]:
+        redone_dict["CONTROLLER"].append(controllers[i][:-2])
+    else:
+        redone_dict["CONTROLLER"].append(controllers[i])
+
+df2 = pd.DataFrame.from_dict(redone_dict)
+
+df["OUTPUT"] = df2["OUTPUT"]
+df["CONTROLLER"] = df2["CONTROLLER"]
+
+# Label each pairing with a numeric value.
 numeric_labels = {"NUM_LABEL": []}
 for label in df.EVENT_LABEL:
     # If anomalous label is hit, ignore.
