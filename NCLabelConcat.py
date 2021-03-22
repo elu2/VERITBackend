@@ -17,13 +17,13 @@ controllers = df["CONTROLLER"]
 
 for i in range(len(outputs)):
     if "." in outputs[i]:
-        redone_dict["OUTPUT"].append(outputs[i][:-2])
+        redone_dict["OUTPUT"].append(outputs[i][:outputs[i].index(".")])
     else:
         redone_dict["OUTPUT"].append(outputs[i])
 
 for i in range(len(controllers)):
-    if "." in outputs[i]:
-        redone_dict["CONTROLLER"].append(controllers[i][:-2])
+    if "." in controllers[i]:
+        redone_dict["CONTROLLER"].append(controllers[i][:controllers[i].index(".")])
     else:
         redone_dict["CONTROLLER"].append(controllers[i])
 
