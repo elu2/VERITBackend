@@ -32,7 +32,7 @@ nodes <- full_join(controllers,outputs, by="Id")
 # Create vector of equal weights (1)
 one_vec <- rep(1, length(prop_df$TOTAL))
 
-tibble_df <- tibble(source=prop_df$INPUT, source_id=prop_df$INPUT_ID, target=prop_df$CONTROLLER, target_id=prop_df$CONT_ID, weight=one_vec, color_col=prop_df$EDGE, thickness=prop_df$TOTAL)
+tibble_df <- tibble(source=prop_df$CONTROLLER, source_id=prop_df$CONT_ID, target=prop_df$INPUT, target_id=prop_df$INPUT_ID, weight=one_vec, color_col=prop_df$EDGE, thickness=prop_df$TOTAL)
 
 ## ------------------------------------------------------------------------------------------------------
 # Table for edges
