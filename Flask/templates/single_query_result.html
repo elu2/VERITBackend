@@ -1,0 +1,24 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Result</title>
+
+</head>
+
+<body>
+  <div>
+      <img src="{{url_for('static', filename=outfile)}}" alt="network"/>
+  </div>
+    
+  <div>
+      <h2>These ids were not found:</h2>
+      {% for id in not_in %}
+          <p>{{ id }}</p>
+      {% endfor %}
+  </div>
+    
+</body>
+</html>
