@@ -1,10 +1,6 @@
 from flask import Flask, render_template, url_for, request, redirect
-from Query import llNetxQuery
-from Query import NetxQuery
-from Query import SingleQuery
-from Visualization import make_vis
-from Query import DictChecker
-import time
+from Query import llNetxQuery, SingleQuery, DictChecker
+from Visualization import to_json
 
 app = Flask(__name__)
 
@@ -12,7 +8,7 @@ app = Flask(__name__)
 def home():
     if request.method=="POST":
         query_type=request.form["query_type"]
-        if query_type=="breadth-first search":
+        if query_type=="Dijkstra's algorithm":
             return redirect(url_for("make_bfs_query"))
         else:
             return redirect(url_for("make_single_query"))
@@ -52,27 +48,24 @@ def bfs_query_result(query_string, max_linkers):
     no_path_file=open("no_path.txt","r")
     no_path=[line.rstrip("\n") for line in no_path_file]
     
-    outfile="reach_subset"+str(time.time())
-            
-    make_vis.make_vis(outfile)
-    return render_template("bfs_result.html", not_in=not_in, no_path=no_path, outfile=outfile+".png")
+    to_json.clean()
+    elements=to_json.convert()
+    return render_template("bfs_result.html", elements=elements, no_path=no_path, not_in=not_in)
 
 
 
 @app.route('/<query>/<depth>/<thickness_bound>')
 def single_query_result(query, depth, thickness_bound):
-    not_in=DictChecker.check([query])
-    
+    #Add a redirect for if you can't find the id
     #Add try-except/other verification in the future to make sure it's an int
     depth=int(depth)
     thickness_bound=int(thickness_bound)
     
    
     SingleQuery.query(query, depth, thickness_bound)
-    outfile="reach_subset"+str(time.time())
-   
-    make_vis.make_vis(outfile)
-    return render_template("single_query_result.html", not_in=not_in, outfile=outfile+".png")
+    to_json.clean()
+    elements=to_json.convert()
+    return render_template("single_query_result.html", elements=elements)
 
 
 if __name__=="__main__":
