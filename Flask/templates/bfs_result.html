@@ -7,11 +7,63 @@
   <title>Result</title>
 
 </head>
+    
+<style>
+    #cy {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+    }
+</style>
 
 <body>
-  <div>
-      <img src="{{url_for('static', filename=outfile)}}" alt="network"/>
-  </div>
+    <div id="cy"></div>
+    <script>
+        const data = {{ elements | tojson }};
+        var cy = cytoscape({
+                container: document.getElementById('cy'),
+                elements: data,
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                            'label': 'data(label)',
+                           "text-valign" : "center",
+                           "text-halign" : "center",
+                            'width': '2000px',
+                            'height': '2000px',
+                            "font-size": "200px",
+                            "background-color": "#555",
+                            "text-outline-color": "#555",
+                            "text-outline-width": "2px",
+                            "color": "#fff",
+                            'background-fit': 'contain',
+                            'background-clip': 'none'
+                        }
+                    }, {
+                        selector: 'edge',
+                        style: {
+                       
+                           'text-background-color': 'yellow',
+                            'text-background-opacity': 0.4,
+                            'width': 'data(weight)',
+                            'target-arrow-shape': 'triangle',
+                            'control-point-step-size': '140px',
+                            'curve-style': 'bezier',
+                            'line-color':"data(color)",
+                            'target-arrow-color': 'data(color)',
+                        }
+                    }
+                ],
+                layout: {
+                    name: 'concentric',
+                    minNodeSpacing: 300
+                }
+            });
+    </script>
+
     
   <div>
       <h2>These ids were not found:</h2>
