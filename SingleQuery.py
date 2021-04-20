@@ -4,11 +4,13 @@ import pandas as pd
 # Test query (covid): mesh:C000657245
 query = NULL
 depth = 1
-thickness_bound = 10
+thickness_bound = 100
 
+edges_df = pd.read_csv('edges_table.csv')
+edges_df = edges_df.drop_duplicates(subset=['source_id', 'target_id'], keep="first")
 
 # This function returns the edge values for the query appearing in the source_id column. The query is both the initial query and subsequent intermediate nodes.
-def edges_df_search(query, thickness_bound):
+def edges_df_search(query, thickness_bound, depth):
     # Turn query into a dataframe to inner join on
     input_dict = {"source_id": [str(query)]}
     query_df = pd.DataFrame.from_dict(input_dict)
@@ -19,6 +21,8 @@ def edges_df_search(query, thickness_bound):
     # Drop rows with low literary presence
     all_query.drop(all_query[all_query['thickness'] < thickness_bound].index, inplace = True)
     all_query.reset_index(drop=True, inplace=True)
+    
+    all_query["depth"] = [depth] * all_query.shape[0]
     
     return all_query
 
@@ -34,18 +38,18 @@ def single_querier(query, depth, thickness_bound):
     edges_df = pd.read_csv('edges_table.csv')
     edges_df = edges_df.drop_duplicates(subset=['source_id', 'target_id'], keep="first")
 
-    full_df = edges_df_search(query, thickness_bound)
+    full_df = edges_df_search(query, thickness_bound, 1)
 
     # Iterates according to depth for additional node pairings
     for i in range(depth):
         # Initialize the dataframe to be looped through
-        loop_df = pd.DataFrame(columns=["source_id", "source", "target_id", "target", "weight", "color_col", "thickness"])
+        loop_df = pd.DataFrame(columns=["source_id", "source", "target_id", "target", "weight", "color_col", "thickness", "depth"])
 
         # If on loop 1, just loop through the initialized full_df
         if i == 0:
             # For each controller of each input, find their next linker
             for _, target_id in full_df["target_id"].iteritems():
-                temp_df = edges_df_search(target_id, thickness_bound)
+                temp_df = edges_df_search(target_id, thickness_bound, i + 2)
                 # Update looper_df with the temp
                 loop_df = pd.concat([loop_df, temp_df]).reset_index(drop=True)
 
@@ -57,7 +61,7 @@ def single_querier(query, depth, thickness_bound):
         # If at higher depth, use last iteration's store to loop through.
         else:
             for _, target_id in prev_loop_df["target_id"].iteritems():
-                temp_df = edges_df_search(target_id, thickness_bound)
+                temp_df = edges_df_search(target_id, thickness_bound, i + 1)
                 loop_df = pd.concat([loop_df, temp_df]).reset_index(drop=True)
 
             full_df = pd.concat([full_df, loop_df]).reset_index(drop=True)
@@ -78,7 +82,7 @@ def single_querier(query, depth, thickness_bound):
     node_merged_df.columns = ["FullName", "Label", "Id"]
 
     # Rename columns to be consistent with other query scripts
-    full_df.columns = ["source_lab", "source", "target_lab", "target", "weight", "color_col", "thickness"]
+    full_df.columns = ["source_lab", "source", "target_lab", "target", "weight", "color_col", "thickness", "depth"]
 
     # Writes the tables out into a csv
     node_merged_df.to_csv("query_nodes.csv", index=False)
