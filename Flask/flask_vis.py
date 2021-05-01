@@ -1,6 +1,7 @@
 from flask import Flask, render_template, url_for, request, redirect
-from Query import llNetxQuery, SingleQuery, DictChecker
-from Visualization import to_json
+from Query import llNetxQuery, SingleQuery, DictChecker, NetxSingleQuery
+from Visualization import to_json, to_json_netx
+
 
 app = Flask(__name__)
 
@@ -48,8 +49,7 @@ def bfs_query_result(query_string, max_linkers):
     no_path_file=open("no_path.txt","r")
     no_path=[line.rstrip("\n") for line in no_path_file]
     
-    to_json.clean()
-    elements=to_json.convert()
+    elements=to_json_netx.clean()
     return render_template("bfs_result.html", elements=elements, no_path=no_path, not_in=not_in)
 
 
@@ -63,8 +63,7 @@ def single_query_result(query, depth, thickness_bound):
     
    
     SingleQuery.query(query, depth, thickness_bound)
-    to_json.clean()
-    elements=to_json.convert()
+    elements=to_json.clean()
     return render_template("single_query_result.html", elements=elements)
 
 

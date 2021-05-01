@@ -3,6 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.18.2/cytoscape.min.js"></script>
 
   <title>Result</title>
 
@@ -34,11 +35,11 @@
                            "text-halign" : "center",
                             'width': '2000px',
                             'height': '2000px',
-                            "font-size": "200px",
-                            "background-color": "#555",
+                            "font-size": "600px",
+                            "background-color": "#a0fad3",
                             "text-outline-color": "#555",
                             "text-outline-width": "2px",
-                            "color": "#fff",
+                            "color": "#080707",
                             'background-fit': 'contain',
                             'background-clip': 'none'
                         }
@@ -58,27 +59,14 @@
                     }
                 ],
                 layout: {
-                    name: 'concentric',
-                    minNodeSpacing: 300
+                    name: 'breadthfirst'
+                   
                 }
             });
     </script>
 
     
-  <div>
-      <h2>These ids were not found:</h2>
-      {% for id in not_in %}
-          <p>{{ id }}</p>
-      {% endfor %}
-  </div>
-    
-  <div>
-      <h2>No path was found between these ids:</h2>
-      {% for path in no_path %}
-          <p>{{ path }}</p>
-      {% endfor %}
-  </div>
-    
+
       
     
 
