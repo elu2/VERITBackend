@@ -4,6 +4,9 @@
 <head>
   <meta charset="utf-8">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.18.2/cytoscape.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.5/dagre.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.3.2/cytoscape-dagre.min.js"></script>
+    
 
   <title>Result</title>
 
@@ -30,18 +33,20 @@
                     {
                         selector: 'node',
                         style: {
-                            'label': 'data(label)',
-                           "text-valign" : "center",
-                           "text-halign" : "center",
-                            'width': '2000px',
-                            'height': '2000px',
-                            "font-size": "200px",
-                            "background-color": "#555",
-                            "text-outline-color": "#555",
-                            "text-outline-width": "2px",
-                            "color": "#fff",
-                            'background-fit': 'contain',
-                            'background-clip': 'none'
+                                "width": "2000px",
+                                "height": "2000px",
+                                "content": "data(label)",
+                                "font-size": "500px",
+                                "text-valign": "center",
+                                "text-halign": "center",
+                                "background-color": "data(color)",
+                                "text-outline-color": "#555",
+                                "text-outline-width": "2px",
+                                "color": "#121111",
+                                "overlay-padding": "6px",
+                                "z-index": "10",
+                            'background-fit': 'contain'
+                          
                         }
                     }, {
                         selector: 'edge',
@@ -60,7 +65,14 @@
                 ],
                 layout: {
                     name: 'concentric',
-                    minNodeSpacing: 100
+                    concentric: function( node ){ 
+  return node.data("rank");
+  }
+                    
+                    
+                    
+                    
+                 
                 }
             });
     </script>

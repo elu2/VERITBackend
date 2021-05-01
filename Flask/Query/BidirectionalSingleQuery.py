@@ -20,11 +20,21 @@ def query(query, depth, thickness_bound):
 
         # Find only rows with query as source
         all_query = pd.merge(edges_df, query_df, how="inner", on="source_id")
-
-
+       
+        
         # Drop rows with low literary presence
         all_query.drop(all_query[all_query['thickness'] < thickness_bound].index, inplace = True)
         all_query.reset_index(drop=True, inplace=True)
+        
+        #Find any reverse connections between the target nodes and the query
+        targets=all_query["target_id"]
+        targets.name="source_id"
+        merged_targets=pd.merge(targets, edges_df, how="inner", on="source_id")
+        reverse=merged_targets[merged_targets["target_id"]==query]
+        
+        #Append reverse onto all_query
+        all_query=pd.concat([all_query, reverse]).reset_index(drop=True)
+        
 
         all_query["depth"] = [depth] * all_query.shape[0]
 
