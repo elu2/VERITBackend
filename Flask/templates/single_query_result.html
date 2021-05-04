@@ -61,7 +61,15 @@
                             'line-color':"data(color)",
                             'target-arrow-color': 'data(color)',
                         }
-                    }
+                    },
+                    {
+                    selector: 'node.semitransp',
+                    style:{ 'opacity': '.1' }
+                },
+                    {
+                    selector: 'edge.semitransp',
+                    style:{ 'opacity': '.1' }
+                }
                 ],
                 layout: {
                     name: 'concentric',
@@ -75,6 +83,16 @@
                  
                 }
             });
+        cy.on('mouseover', 'node', function(evt){
+  var sel = evt.target;
+  cy.nodes().difference(sel.outgoers()).not(sel).addClass('semitransp');
+  cy.edges().difference(sel.edgesTo(sel.outgoers())).addClass("semitransp");
+});
+       cy.on('mouseout', 'node', function(evt){
+  var sel = evt.target;
+  cy.nodes().difference(sel.outgoers()).not(sel).removeClass('semitransp');
+  cy.edges().difference(sel.edgesTo(sel.outgoers())).removeClass("semitransp");
+});
     </script>
     
 </body>
