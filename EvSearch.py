@@ -1,7 +1,7 @@
 import pandas as pd
 
 # The edges table to find evidence from. Reads "source" and "target" columns which must each contain only IDs.
-input_edges = "query_edges.csv"
+input_edges = "query_edges_2.csv"
 
 
 def get_evidence(edges_table_df, ev_id_df):
@@ -20,7 +20,8 @@ def get_evidence(edges_table_df, ev_id_df):
         evidence_concat = str()
         j = 0
         for j in range(len(query_ev["OUTPUT_ID"])):
-            evidence_concat += query_ev["EVIDENCE"][j] + "|" + query_ev["EVENT_LABEL"][j] + "|%%"
+            pmcid_add = " (" + query_ev["SEEN_IN"][j] + ")"
+            evidence_concat += query_ev["EVIDENCE"][j] + pmcid_add + "|" + query_ev["EVENT_LABEL"][j] + "|%%"
 
         # Adds the entire concatenated string as a column's entry
         edges_id_dict["LONG_EVIDENCE"].append(evidence_concat)
@@ -32,7 +33,8 @@ def get_evidence(edges_table_df, ev_id_df):
 
 edges_table_df = pd.read_csv(input_edges)
 ev_id_df = pd.read_csv("ev_id.csv")
-query_edges_ev_df = get_evidence(edges_table_df, ev_id_df)
 
-new_edge_df = pd.merge(edges_table_df, query_edges_ev_df, on=["source", "target"])
+query_edges_ev_df = get_evidence(edges_table_df, ev_id_df)
+new_edge_df = pd.merge(edges_table_df, query_edges_ev_df, on=["source", "target"], how="left")
+
 new_edge_df.to_csv("query_edges_ev.csv")
