@@ -12,25 +12,27 @@ def get_evidence(edges_table_df, ev_id_df):
     # len(edges_id_dict["source_id"])
     for i in range(len(edges_id_dict["source"])):
         # Finds the single pair's matches in the evidence dataframe (SLOW)
-        out_id = id_subset_dict["OUTPUT_ID"][i]
-        cont_id = id_subset_dict["CONTROLLER_ID"][i]
+        out_id = edges_id_dict["source"][i]
+        cont_id = edges_id_dict["target"][i]
         query_ev = ev_id_df.query('(OUTPUT_ID==@out_id) & (CONTROLLER_ID==@cont_id)').reset_index(drop=True)
         
         # Creates a long string of all evidence
         evidence_concat = str()
         j = 0
         for j in range(len(query_ev["OUTPUT_ID"])):
-            evidence_concat += query_ev["EVIDENCE"][j] + "[" + query_ev["EVENT_LABEL"][j] + "] "
+            evidence_concat += query_ev["EVIDENCE"][j] + "|" + query_ev["EVENT_LABEL"][j] + "|%%"
 
         # Adds the entire concatenated string as a column's entry
         edges_id_dict["LONG_EVIDENCE"].append(evidence_concat)
 
     edges_id_dict["LONG_EVIDENCE"] = pd.Series(edges_id_dict["LONG_EVIDENCE"])
     edges_ev_df = pd.DataFrame(edges_id_dict)
-
     return edges_ev_df
 
 
 edges_table_df = pd.read_csv(input_edges)
 ev_id_df = pd.read_csv("ev_id.csv")
-get_evidence(edges_table_df, ev_id_df).to_csv("query_ev.csv")
+query_edges_ev_df = get_evidence(edges_table_df, ev_id_df)
+
+new_edge_df = pd.merge(edges_table_df, query_edges_ev_df, on=["source", "target"])
+new_edge_df.to_csv("query_edges_ev.csv")
