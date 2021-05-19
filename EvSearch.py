@@ -1,7 +1,7 @@
 import pandas as pd
 
 # The edges table to find evidence from. Reads "source" and "target" columns which must each contain only IDs.
-input_edges = "query_edges_2.csv"
+input_edges = "query_edges.csv"
 
 
 def get_evidence(edges_table_df, ev_id_df):
