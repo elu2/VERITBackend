@@ -5,7 +5,7 @@ import time
 import datetime
 
 # Path to directory before papers_as_tsv/
-base_path = "C:/Users/ericj/REACHVisualization/"
+base_path = "/xdisk/guangyao/REACH2/REACHVisualization/"
 
 
 def noneConcat(file):
@@ -97,7 +97,17 @@ def conformity(csv_path):
     df = df[["INPUT", "OUTPUT", "CONTROLLER", "EVENT ID_x", "EVENT_LABEL", "EVIDENCE", "SEEN IN"]]
     colnames = ["INPUT", "OUTPUT", "CONTROLLER", "EVENT_ID", "EVENT_LABEL", "EVIDENCE", "SEEN_IN"]
     df.columns=colnames
-    df.to_csv('NCEv.csv', mode='w', header=True)
+    
+    cleaned = df[~df.INPUT.str.contains("uaz", na=False)]
+    cleaned = cleaned[~cleaned.OUTPUT.str.contains("uaz", na=False)]
+    cleaned = cleaned[~cleaned.CONTROLLER.str.contains("uaz", na=False)]
+    cleaned = cleaned[~cleaned.INPUT.str.contains("uaz", na=False)]
+    cleaned = cleaned[~cleaned.OUTPUT.str.contains("nan", na=False)]
+    cleaned = cleaned[~cleaned.CONTROLLER.str.contains("nan", na=False)]
+    cleaned = cleaned.dropna()
+    cleaned = cleaned.reset_index(drop=True)
+    
+    cleaned.to_csv('NCEv.csv', mode='w', header=True, index=False)
 
 
 all_NC_concat(base_path)
