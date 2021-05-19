@@ -88,7 +88,7 @@ def all_NC_concat(base_path):
     # Unload last iteration of <1000 papers
     base_df.to_csv('AllNC.csv', mode='a', header=False)
     with open("AllNC.log", "a") as log_file:
-        log_file.write(f"{datetime.datetime.now()}: Passed remaining {counter%1000} papers. Completed.")
+        log_file.write(f"{datetime.datetime.now()}: Passed remaining {counter%1000} papers. Completed.\n")
 
         
 # Restructures dataframe to be compatible with other scripts
