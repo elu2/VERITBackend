@@ -49,7 +49,7 @@ def noneConcat(file):
 
 def all_NC_concat(base_path):
     paper_path = base_path + "papers_as_tsv/"
-    directory = os.fsencode(dir_name)
+    directory = os.fsencode(paper_path)
 
     # Initialized housekeeping values
     counter = 0
