@@ -31,8 +31,8 @@ def all_Act_concat(base_path):
         filename = os.fsdecode(file)
         file_path = paper_path + filename
         
-        file_df = truncator(file_path) #***********************
-        base_df = base_df.append(file_df, ignore_index=True) #*************************
+        file_df = truncator(file_path)
+        base_df = base_df.append(file_df, ignore_index=True)
 
         counter += 1
         if counter % 1000 == 0:
