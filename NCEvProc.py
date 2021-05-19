@@ -3,6 +3,7 @@
 import pandas as pd
 import os
 import time
+import csv
 import datetime
 
 # Path to directory before papers_as_tsv/

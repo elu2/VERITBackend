@@ -1,7 +1,7 @@
 # Main purpose: Create ev_id.csv which contains OUTPUT id, CONTROLLER id, and a large corpus of evidence.
 
 import pandas as pd
-
+import csv
 
 # Function to get an ID from a species
 def into_id(string):
