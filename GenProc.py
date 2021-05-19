@@ -14,7 +14,6 @@ def into_id(string):
     return split_id
 
 
-edges_table_df = pd.read_csv('edges_table.csv')
 baseEv_df = pd.read_csv('baseEv_df.csv')
 
 cleaned = baseEv_df[~baseEv_df.CONTROLLER.str.contains("NONE", na=False)]
@@ -27,8 +26,10 @@ cleaned = cleaned[~cleaned.CONTROLLER.str.contains("nan", na=False)]
 cleaned = cleaned.dropna()
 cleaned = cleaned.reset_index(drop=True)
 
+NCEv_df = pd.read_csv("NCEv.csv")
+cleaned = cleaned.append(NCEv_df, ignore_index=True)
+
 # Converting to dictionary for a more workable format
-edges_dict = edges_table_df.to_dict()
 ev_df_dict = cleaned.to_dict()
 
 # Adds new ID columns to dictionary
@@ -60,4 +61,4 @@ ev_id_df = pd.DataFrame.from_dict(ev_df_dict)
 ev_id_df = ev_id_df.drop_duplicates(subset=["OUTPUT_ID", "CONTROLLER_ID", "SEEN_IN"]).reset_index(drop=True)
 
 # ... to save as a csv file.
-ev_id_df.to_csv("ev_id.csv")
+ev_id_df.to_csv("ev_id.csv", index=False)
