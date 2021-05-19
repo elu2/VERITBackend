@@ -59,7 +59,7 @@ def all_NC_concat(base_path):
     # Initialize csv file with column names
     column_names = ["INPUT", "OUTPUT", "CONTROLLER", "EVENT ID_x", "EVIDENCE", "SEEN IN", "EVENT_LABEL"]
     base_df = pd.DataFrame(columns = column_names)
-    base_df.to_csv('NCEv.csv', mode='w', header=True)
+    base_df.to_csv('AllNC.csv', mode='w', header=True)
     base_df = pd.DataFrame()
 
     # Loop through papers directory
@@ -77,17 +77,17 @@ def all_NC_concat(base_path):
             time_diff = end_time - new_ref
             time_diffs.append(time_diff)
 
-            with open("NCEv.log", "a") as log_file:
+            with open("AllNC.log", "a") as log_file:
                 log_file.write(f"{datetime.datetime.now()}: Passed {counter} papers. Took {time_diff} seconds.\n")
 
-            base_df.to_csv('NCEv.csv', mode='a', header=False)
+            base_df.to_csv('AllNC.csv', mode='a', header=False)
             base_df = pd.DataFrame()
 
             new_ref = time.time()
 
     # Unload last iteration of <1000 papers
-    base_df.to_csv('NCEv.csv', mode='a', header=False)
-    with open("NCEv.log", "a") as log_file:
+    base_df.to_csv('AllNC.csv', mode='a', header=False)
+    with open("AllNC.log", "a") as log_file:
         log_file.write(f"{datetime.datetime.now()}: Passed remaining {counter%1000} papers. Completed.")
 
         
@@ -107,8 +107,9 @@ def conformity(csv_path):
     cleaned = cleaned.dropna()
     cleaned = cleaned.reset_index(drop=True)
     
-    cleaned.to_csv('NCEv.csv', mode='w', header=True, index=False)
+    cleaned.to_csv('AllNC.csv', mode='w', header=True, index=False)
 
 
 all_NC_concat(base_path)
-conformity(base_path + "NCEv.csv")
+conformity(base_path + "AllNC.csv")
+
