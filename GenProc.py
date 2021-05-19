@@ -14,23 +14,13 @@ def into_id(string):
     return split_id
 
 
-baseEv_df = pd.read_csv('baseEv_df.csv')
-
-cleaned = baseEv_df[~baseEv_df.CONTROLLER.str.contains("NONE", na=False)]
-cleaned = cleaned[~cleaned.INPUT.str.contains("uaz", na=False)]
-cleaned = cleaned[~cleaned.OUTPUT.str.contains("uaz", na=False)]
-cleaned = cleaned[~cleaned.CONTROLLER.str.contains("uaz", na=False)]
-cleaned = cleaned[~cleaned.INPUT.str.contains("uaz", na=False)]
-cleaned = cleaned[~cleaned.OUTPUT.str.contains("nan", na=False)]
-cleaned = cleaned[~cleaned.CONTROLLER.str.contains("nan", na=False)]
-cleaned = cleaned.dropna()
-cleaned = cleaned.reset_index(drop=True)
-
-NCEv_df = pd.read_csv("NCEv.csv")
-cleaned = cleaned.append(NCEv_df, ignore_index=True)
+# Read in and combine the two important csv files.
+AllAct_df = pd.read_csv('AllAct.csv')
+AllNC_df = pd.read_csv("AllNC.csv")
+All_df = AllAct_df.append(AllNC_df, ignore_index=True)
 
 # Converting to dictionary for a more workable format
-ev_df_dict = cleaned.to_dict()
+ev_df_dict = All_df.to_dict()
 
 # Adds new ID columns to dictionary
 ev_df_dict["OUTPUT_ID"] = []
