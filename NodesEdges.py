@@ -1,4 +1,5 @@
 import pandas as pd
+import csv
 
 tanh_df = pd.read_csv("Tanh.csv", quoting=csv.QUOTE_NONE, encoding='utf-8')
 
