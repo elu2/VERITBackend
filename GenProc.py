@@ -1,7 +1,6 @@
 # Main purpose: Create ev_id.csv which contains OUTPUT id, CONTROLLER id, and a large corpus of evidence.
 
 import pandas as pd
-import csv
 
 # Function to get an ID from a species
 def into_id(string):
@@ -15,8 +14,8 @@ def into_id(string):
 
 
 # Read in and combine the two important csv files.
-AllAct_df = pd.read_csv('AllAct.csv', quoting=csv.QUOTE_NONE, encoding='utf-8')
-AllNC_df = pd.read_csv("AllNC.csv", quoting=csv.QUOTE_NONE, encoding='utf-8')
+AllAct_df = pd.read_csv('AllAct.csv', encoding='utf-8')
+AllNC_df = pd.read_csv("AllNC.csv", encoding='utf-8')
 All_df = AllAct_df.append(AllNC_df, ignore_index=True)
 
 # Converting to dictionary for a more workable format

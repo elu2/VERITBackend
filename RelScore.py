@@ -1,8 +1,7 @@
 import pandas as pd
 import math
-import csv
 
-df = pd.read_csv("Lab_df.csv", quoting=csv.QUOTE_NONE, encoding='utf-8')
+df = pd.read_csv("Lab_df.csv",  encoding='utf-8')
 
 
 # Initialize the dictionary with each key as "INPUT|CONTROLLER|x_a" where x_a is activation type, and value being a list of 

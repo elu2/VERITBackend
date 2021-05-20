@@ -31,8 +31,8 @@ def get_evidence(edges_table_df, ev_id_df):
     return edges_ev_df
 
 
-edges_table_df = pd.read_csv(input_edges)
-ev_id_df = pd.read_csv("AllActNC.csv", quoting=csv.QUOTE_NONE, encoding='utf-8')
+edges_table_df = pd.read_csv(input_edges, encoding="utf-8")
+ev_id_df = pd.read_csv("AllActNC.csv", encoding='utf-8')
 
 query_edges_ev_df = get_evidence(edges_table_df, ev_id_df)
 new_edge_df = pd.merge(edges_table_df, query_edges_ev_df, on=["source", "target"], how="left")
