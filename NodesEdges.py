@@ -1,6 +1,6 @@
 import pandas as pd
 
-tanh_df = pd.read_csv("Tanh.csv")
+tanh_df = pd.read_csv("Tanh.csv", quoting=csv.QUOTE_NONE, encoding='utf-8')
 
 inputs = tanh_df[["INPUT"]].rename(columns={"INPUT": "Id"})
 controllers = tanh_df[["CONTROLLER"]].rename(columns={"CONTROLLER": "Id"})

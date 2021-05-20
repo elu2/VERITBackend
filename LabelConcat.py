@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv("Counted.csv", encoding="UTF-8")
+df = pd.read_csv("Counted.csv", encoding="UTF-8", quoting=csv.QUOTE_NONE)
 
 redone_dict = {
     "OUTPUT" : [],
