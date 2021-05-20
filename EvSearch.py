@@ -32,7 +32,7 @@ def get_evidence(edges_table_df, ev_id_df):
 
 
 edges_table_df = pd.read_csv(input_edges)
-ev_id_df = pd.read_csv("ev_id.csv")
+ev_id_df = pd.read_csv("AllActNC.csv")
 
 query_edges_ev_df = get_evidence(edges_table_df, ev_id_df)
 new_edge_df = pd.merge(edges_table_df, query_edges_ev_df, on=["source", "target"], how="left")
