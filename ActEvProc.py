@@ -7,7 +7,7 @@ base_path = "/xdisk/guangyao/REACH2/REACHVisualization/"
 
 
 def truncator(path):
-    df = pd.read_csv(path, sep='\t', header=0)
+    df = pd.read_csv(path, sep='\t', header=0, quoting=csv.QUOTE_NONE, encoding='utf-8')
     ev_df = df.iloc[:, [0, 1, 2, 3, 4, 17, 18]]
     return ev_df
 
@@ -57,7 +57,7 @@ def all_Act_concat(base_path):
         
         
 def cleaner(csv_path):
-    df = pd.read_csv(csv_path, sep=',', header=0).iloc[:, 1:]
+    df = pd.read_csv(csv_path, sep=',', header=0, quoting=csv.QUOTE_NONE, encoding='utf-8').iloc[:, 1:]
     
     no_none = df.query('CONTROLLER!="NONE"').reset_index(drop=True)
     no_pos_reg = no_none.query('EVENT_LABEL!="Regulation (Positive)"').reset_index(drop=True)
