@@ -7,4 +7,4 @@ controllers = tanh_df[["CONTROLLER"]].rename(columns={"CONTROLLER": "Id"})
 
 nodes = inputs.append(controllers).drop_duplicates(inplace=False)
 
-nodes.to_csv("nodes_table_all.csv")
+nodes.to_csv("nodes_table_all.csv", index=False)
