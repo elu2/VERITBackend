@@ -11,7 +11,7 @@ interaction_dict = {}
 i = 0
 for i in range(0, len(df.INPUT)):
     if df.NUM_LABEL[i] == 1:
-        interaction_dict[f"{df.INPUT[i]}|{df.CONTROLLER[i]}|pos"] = [df.COUNTER[i], df.NUM_LABEL[i]]
+        interaction_dict[f"{df.OUTPUT[i]}|{df.CONTROLLER[i]}|pos"] = [df.COUNTER[i], df.NUM_LABEL[i]]
     elif df.NUM_LABEL[i] == -1:
         interaction_dict[f"{df.OUTPUT[i]}|{df.CONTROLLER[i]}|neg"] = [df.COUNTER[i], df.NUM_LABEL[i]]
     elif df.NUM_LABEL[i] == 0:
