@@ -18,6 +18,11 @@ AllAct_df = pd.read_csv('AllAct.csv', encoding='utf-8')
 AllNC_df = pd.read_csv("AllNC.csv", encoding='utf-8')
 All_df = AllAct_df.append(AllNC_df, ignore_index=True)
 
+# Trims off curly brackets in anomalies
+All_df["INPUT"] = All_df["INPUT"].str.strip("{}")
+All_df["OUTPUT"] = All_df["OUTPUT"].str.strip("{}")
+All_df["CONTROLLER"] = All_df["CONTROLLER"].str.strip("{}")
+
 # Converting to dictionary for a more workable format
 ev_df_dict = All_df.to_dict()
 
