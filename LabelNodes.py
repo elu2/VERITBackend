@@ -1,33 +1,37 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# Updating nodes to include label
 import pandas as pd
-import csv
 
-file_name = "nodes_table_all.csv"
-node_labels = []
-reader_s = []
-only_ids = []
-with open(file_name, "r", encoding="UTF-8") as nodes_table:
-    reader = nodes_table.readlines()
-    for row in reader[1:]:
-        if ":" in row:
-            reader_s.append(row.strip("\n"))
-            node_labels.append(row.split("::")[0])
-            only_ids.append(row.split(":")[-2] + ":" + row.strip("\n").split(":")[-1])
-        else:
-            reader_s.append(row.strip('"')[:-2])
-            node_labels.append(row.split("::")[0][1:-2])
-            only_ids.append(row.split("::")[0][1:-2])
 
-labelled_dict = {
-    "Id" : reader_s,
-    "Label": node_labels,
-    "Only_Id": only_ids
-}
+def into_two(string):
+    split_string = string.split(":")
+    split_id = split_string[-2] + ":" + split_string[-1]
+    split_name = string.split(":")[0]
+    
+    if "." in split_id:
+        split_id = split_id.split(".")[0]
+    
+    return split_name, split_id
 
-labelled_df = pd.DataFrame.from_dict(labelled_dict)
-labelled_df = labelled_df.drop_duplicates(subset='Only_Id', keep="first")
 
-labelled_df.to_csv("nodes_table_all_labelled.csv")
+nodes_table = pd.read_csv("nodes_table_all.csv", encoding="UTF-8")
+nodes_table_dict = nodes_table.to_dict()
+nodes_table_dict["Label"] = []
+nodes_table_dict["Only_Id"] = []
+
+i = 0
+for i in range(len(nodes_table_dict["Id"])):
+    try:
+        name, only_id = into_two(nodes_table_dict["Id"][i])
+        nodes_table_dict["Label"].append(name)
+        nodes_table_dict["Only_Id"].append(only_id)
+    except IndexError:
+        name = nodes_table_dict["Id"][i]
+        only_id = "NotFound"
+        nodes_table_dict["Label"].append(name)
+        nodes_table_dict["Only_Id"].append(only_id)
+    i += 1
+
+nodes_table_dict["Label"] = pd.Series(nodes_table_dict["Label"])
+nodes_table_dict["Only_Id"] = pd.Series(nodes_table_dict["Only_Id"])
+
+nodes_table_all_labelled = pd.DataFrame(nodes_table_dict)
+nodes_table_all_labelled.to_csv("nodes_table_all_labelled.csv", index=False)
