@@ -19,7 +19,7 @@ queries_id = [line.strip() for line in queries_id]
 
 output_num = math.factorial(len(queries_id))/(2*math.factorial((len(queries_id) - 2)))
 
-q_combinations = it.combinations(queries_id, 2)
+q_combinations = it.permutations(queries_id, 2)
 
 
 stored_paths = {}
