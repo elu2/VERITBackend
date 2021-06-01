@@ -14,7 +14,7 @@ all_df["EVENT_LABEL"]=all_df["EVENT_LABEL"].apply(add_pipe)
 def add_parentheses(string):
     return "("+string+")"
 all_df["SEEN_IN"]=all_df["SEEN_IN"].apply(add_parentheses)
-all_df
+
 
 #Make another column with concatenated EVIDENCE and PMCID
 all_df["EVIDENCE2"]=all_df["EVIDENCE"].str.cat(all_df["SEEN_IN"], sep=" ")
