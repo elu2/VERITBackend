@@ -77,6 +77,6 @@ edges_merged_df = pd.merge(edges_df, edges_merger_df, how="inner", left_on=["sou
 edges_merged_df = edges_merged_df[["source", "source_id", "target", "target_id", "weight", "color_col", "thickness"]]
 edges_merged_df.columns = ["source_lab", "source", "target_lab", "target", "weight", "color_col", "thickness"]
 
-
+# Write dataframes into a csv
 node_merged_df.to_csv("query_nodes.csv", index=False)
 edges_merged_df.to_csv("query_edges.csv", index=False)
