@@ -95,7 +95,7 @@ def all_NC_concat(base_path):
         
 # Restructures dataframe to be compatible with other scripts
 def conformity(csv_path):
-    df = pd.read_csv(csv_path, sep=',', header=0, quoting=csv.QUOTE_NONE, encoding='utf-8').iloc[:, 1:]
+    df = pd.read_csv(csv_path, sep=',', header=True, quoting=csv.QUOTE_NONE, encoding='utf-8').iloc[:, 1:]
     df = df[["INPUT", "OUTPUT", "CONTROLLER", "EVENT ID_x", "EVENT_LABEL", "EVIDENCE", "SEEN IN"]]
     colnames = ["INPUT", "OUTPUT", "CONTROLLER", "EVENT_ID", "EVENT_LABEL", "EVIDENCE", "SEEN_IN"]
     df.columns=colnames

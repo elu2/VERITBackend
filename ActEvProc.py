@@ -58,7 +58,7 @@ def all_Act_concat(base_path):
         
         
 def cleaner(csv_path):
-    df = pd.read_csv(csv_path, sep=',', header=0, quoting=csv.QUOTE_NONE, encoding='utf-8').iloc[:, 1:]
+    df = pd.read_csv(csv_path, sep=',', header=True, quoting=csv.QUOTE_NONE, encoding='utf-8').iloc[:, 1:]
     
     no_none = df.query('CONTROLLER!="NONE"').reset_index(drop=True)
     no_pos_reg = no_none.query('EVENT_LABEL!="Regulation (Positive)"').reset_index(drop=True)
