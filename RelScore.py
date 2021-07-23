@@ -1,10 +1,21 @@
 import pandas as pd
 import math
 
+
+# Function that turns a REACH output into its ID
+def into_id(string):
+    split_string = string.split(":")
+    split_id = split_string[-2] + ":" + split_string[-1]
+
+    if "." in split_id:
+        split_id = split_id.split(".")[0]
+
+    return split_id
+
+
 df = pd.read_csv("Lab_df.csv",  encoding='utf-8')
 
-
-# Initialize the dictionary with each key as "INPUT|CONTROLLER|x_a" where x_a is activation type, and value being a list of 
+# Initialize the dictionary with each key as "INPUT|CONTROLLER|x_a" where x_a is activation type, and value being a list of
 # [num_mentions, pos_or_neg]
 
 interaction_dict = {}
@@ -18,7 +29,6 @@ for i in range(0, len(df.INPUT)):
         interaction_dict[f"{df.OUTPUT[i]}|{df.CONTROLLER[i]}|nan"] = [df.COUNTER[i], df.NUM_LABEL[i]]
     i += 1
 
-
 # We make a proportion dictionary with each key as "Input/Output|Controller" and each value as [pos_count, total_count]
 
 # initialize the dictionary
@@ -26,7 +36,6 @@ prop_dict = {}
 
 for key in interaction_dict:
     prop_dict[key[:-4]] = [0, 0]
-
 
 # Add just Input/Output|Controller as key to prop_dict, and if the activation is postive, add to the first element in the list value. Otherwise
 # just add to total.
@@ -40,7 +49,7 @@ for key in interaction_dict:
 
     if split_key[-1] == "neg":
         prop_dict[key[:-4]][1] += count
-        
+
     if split_key[-1] == "nan":
         prop_dict[key[:-4]][0] += count/2
         prop_dict[key[:-4]][1] += count
@@ -53,7 +62,6 @@ for key in prop_dict:
     proportion = prop_dict[key][0] / prop_dict[key][1]
     y = (1/(1+math.exp(-5*(proportion-.5))))
     prop_dict[key].append(y)
-
 
 # Change dictionary's form into dataframe-compatible form.
 df_dict = {
@@ -72,26 +80,22 @@ for key in prop_dict:
     df_dict["POS"].append(prop_dict[key][0])
     df_dict["TOTAL"].append(prop_dict[key][1])
 
-
 prop_df = pd.DataFrame.from_dict(df_dict)
 
-
-i = 0
 input_spec = prop_df["INPUT"]
 cont_spec = prop_df["CONTROLLER"]
 ID_PAIRS = {"ID_PAIRS": []}
 for i in range(0, len(input_spec)):
-    if ":" in input_spec[i]:
-        input_spec_id = input_spec[i].split(":")[-2] + ":" + input_spec[i].split(":")[-1]
-    if ":" in cont_spec[i]:
-        cont_spec_id = cont_spec[i].split(":")[-2] + ":" + cont_spec[i].split(":")[-1]
-    else:
+    try:
+        input_spec_id = into_id(input_spec[i])
+    except IndexError:
         input_spec_id = input_spec[i]
+    try:
+        cont_spec_id = into_id(cont_spec[i])
+    except IndexError:
         cont_spec_id = cont_spec[i]
 
     ID_PAIRS["ID_PAIRS"].append(f"{input_spec_id}|{cont_spec_id}")
-    i += 1
-
 
 ID_PAIRS_df = pd.DataFrame.from_dict(ID_PAIRS)
 prop_df = pd.concat([prop_df, ID_PAIRS_df], axis=1, join="inner")
@@ -118,7 +122,7 @@ for key in unique_dict:
 
     proportion = unique_dict[key][0] / unique_dict[key][1]
     y = (1/(1+math.exp(-5*(proportion-.5))))
-    
+
     pos_t_dict["EDGE"].append(y)
 
 
@@ -130,10 +134,9 @@ in_cont_id = {"INPUT_ID" : [], "CONT_ID" : []}
 for pair in prop_df_reduced["ID_PAIRS"]:
     in_id = pair.split("|")[-2]
     cont_id = pair.split("|")[-1]
-    in_cont_id["INPUT_ID"].append(in_id[:-2])
+    in_cont_id["INPUT_ID"].append(in_id)
     in_cont_id["CONT_ID"].append(cont_id)
 in_cont_id_df = pd.DataFrame.from_dict(in_cont_id)
 with_ids = pd.concat([in_cont_id_df, prop_df_reduced], axis=1)
-
 
 with_ids.to_csv("Tanh.csv", index=False)
