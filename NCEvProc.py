@@ -106,6 +106,7 @@ def conformity(csv_path):
     cleaned = cleaned[~cleaned.INPUT.str.contains("uaz", na=False)]
     cleaned = cleaned[~cleaned.OUTPUT.str.contains("nan", na=False)]
     cleaned = cleaned[~cleaned.CONTROLLER.str.contains("nan", na=False)]
+    cleaned = cleaned[~cleaned.OUTPUT.str.contains("{", na=False)]
     cleaned = cleaned.dropna()
     cleaned = cleaned.reset_index(drop=True)
     
