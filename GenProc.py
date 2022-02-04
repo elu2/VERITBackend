@@ -53,6 +53,7 @@ ev_df_dict["CONTROLLER_ID"] = pd.Series(ev_df_dict["CONTROLLER_ID"])
 # Convert to dataframe...
 ev_id_df = pd.DataFrame.from_dict(ev_df_dict)
 ev_id_df = ev_id_df.drop_duplicates(subset=["OUTPUT_ID", "CONTROLLER_ID", "SEEN_IN"]).reset_index(drop=True)
+ev_id_df = ev_id_df.astype(str)
 
 # ... to save as a csv file.
 ev_id_df.to_csv("AllActNC.csv", index=False)
