@@ -7,6 +7,9 @@ import pandas as pd
 # rat_df: dataframe to prune from
 # pest_str: string to filter out
 def exterminator(rat_df, pest_strs):
+    rat_df = rat_df[rat_df.CONTROLLER.str.contains("::")]
+    rat_df = rat_df[rat_df.OUTPUT.str.contains("::")]
+    
     for tstr in pest_strs:
         rat_df = rat_df[~rat_df.CONTROLLER.str.contains(tstr)]
         rat_df = rat_df[~rat_df.OUTPUT.str.contains(tstr)]
