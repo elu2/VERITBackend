@@ -22,5 +22,6 @@ rename_dict = {
 
 tanh_df = tanh_df.rename(columns = rename_dict)
 tanh_df = tanh_df[["source","source_id","target","target_id","color_col","thickness"]]
-
+tanh_df = tanh_df[tanh_df.source.str.contains("::")]
+tanh_df = tanh_df[tanh_df.target.str.contains("::")]
 tanh_df.to_csv("edges_table.csv", index=False)
