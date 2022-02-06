@@ -15,6 +15,7 @@ def into_id(string):
 
 # Read in and combine the two important csv files.
 AllAct_df = pd.read_csv('AllAct.csv', encoding='utf-8')
+AllAct_df = AllAct_df[~AllAct_df.CONTROLLER.str.contains('NONE')].reset_index(drop=True)
 AllNC_df = pd.read_csv("AllNC.csv", encoding='utf-8')
 All_df = AllAct_df.append(AllNC_df, ignore_index=True)
 
