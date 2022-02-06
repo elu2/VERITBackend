@@ -40,5 +40,15 @@ edges_df_ev=pd.merge(edges_df, all_df, how="inner", on=["source_id", "target_id"
 #Write new tables to csv
 ev_table=edges_df_ev.drop(labels=["source","target","color_col","thickness"], axis=1)
 edges_df=edges_df_ev.drop(labels=["evidence"], axis=1)
+
+# Remove rows where there is no evidence
+ev_table = ev_table[~ev_table.evidence.str.match("NaN")]
+
+# Merge to remove rows that aren't unique
+edges_cols = edges_df[["source_id", "target_id"]]
+ev_cols = ev_table[["source_id", "target_id"]]
+
+edges_df = pd.merge(edges_df, ev_cols, how="inner", on=["source_id", "target_id"])
+
 ev_table.to_csv("evidence.csv",index=False)
 edges_df.to_csv("edges_table.csv", index=False)
