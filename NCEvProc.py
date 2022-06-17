@@ -5,9 +5,11 @@ import os
 import time
 import csv
 import datetime
+from joblib import Parallel, delayed
+import numpy as np
 
 # Path to directory before papers_as_tsv/
-base_path = "/xdisk/guangyao/REACH2/REACHVisualization/"
+base_path = "/xdisk/guangyao/elu2/REACHVisualization/"
 
 
 def noneConcat(file):
@@ -49,14 +51,9 @@ def noneConcat(file):
     return trunc_df
 
 
-def all_NC_concat(base_path):
+def all_NC_concat(paper_list):
     paper_path = base_path + "papers_as_tsv/"
     directory = os.fsencode(paper_path)
-
-    # Initialized housekeeping values
-    counter = 0
-    new_ref = time.time()
-    time_diffs = []
 
     # Initialize csv file with column names
     column_names = ["INPUT", "OUTPUT", "CONTROLLER", "EVENT ID_x", "EVIDENCE", "SEEN IN", "EVENT_LABEL"]
@@ -65,7 +62,7 @@ def all_NC_concat(base_path):
     base_df = pd.DataFrame()
 
     # Loop through papers directory
-    for file in os.listdir(directory):
+    for file in paper_list:
         filename = os.fsdecode(file)
         file_path = paper_path + filename
         file_df = noneConcat(file_path)
@@ -74,25 +71,13 @@ def all_NC_concat(base_path):
 
         counter += 1
         if counter % 1000 == 0:
-            end_time = time.time()
-
-            time_diff = end_time - new_ref
-            time_diffs.append(time_diff)
-
-            with open("AllNC.log", "a") as log_file:
-                log_file.write(f"{datetime.datetime.now()}: Passed {counter} papers. Took {time_diff} seconds.\n")
-
             base_df.to_csv('AllNC.csv', mode='a', header=False)
             base_df = pd.DataFrame()
 
-            new_ref = time.time()
-
     # Unload last iteration of <1000 papers
     base_df.to_csv('AllNC.csv', mode='a', header=False, index=False)
-    with open("AllNC.log", "a") as log_file:
-        log_file.write(f"{datetime.datetime.now()}: Passed remaining {counter%1000} papers. Completed.\n")
 
-        
+
 # Restructures dataframe to be compatible with other scripts
 def conformity(csv_path):
     df = pd.read_csv(csv_path, sep=',', header=0, error_bad_lines=False, encoding='utf-8').iloc[:, 1:]
@@ -113,6 +98,16 @@ def conformity(csv_path):
     cleaned.to_csv('AllNC.csv', mode='w', header=True, index=False)
 
 
-all_NC_concat(base_path)
+column_names = ["INPUT", "OUTPUT", "CONTROLLER", "EVENT ID_x", "EVIDENCE", "SEEN IN", "EVENT_LABEL"]
+base_df = pd.DataFrame(columns = column_names)
+base_df.to_csv('AllNC.csv', mode='w', header=True)
+
+paper_path = base_path + "papers_as_tsv/"
+directory = os.fsencode(paper_path)
+all_files = os.listdir(directory)
+file_chunks = np.array_split(np.array(all_files), 40)
+
+Parallel(n_jobs=-1)(delayed(all_NC_concat)(paper_list) for paper_list in file_chunks)
+
 conformity(base_path + "AllNC.csv")
 
