@@ -4,6 +4,7 @@ import time
 import csv
 import datetime
 from joblib import Parallel, delayed
+import numpy as np
 
 base_path = "/xdisk/guangyao/elu2/REACHVisualization/"
 
