@@ -13,11 +13,11 @@ base_path = "/xdisk/guangyao/elu2/REACHVisualization/"
 
 
 def noneConcat(file):
-    df = pd.read_csv(file, sep='\t', header=0, quoting=csv.QUOTE_NONE, encoding='utf-8')
+    df = pd.read_csv(file, sep='\t', header=0, quoting=csv.QUOTE_NONE, encoding='utf-8').astype(str)
     ev_df = df.iloc[:, [0, 1, 2, 3, 4, 17, 18]]
     none_df = ev_df.query("CONTROLLER=='NONE'").iloc[:, [3, 4]]
     joined = pd.merge(ev_df, none_df, left_on="INPUT", right_on="EVENT ID")
-    
+
     joined_dict = joined.to_dict()
     joined_dict["EVENT_LABEL"] = []
 
@@ -47,19 +47,14 @@ def noneConcat(file):
     joined_ev_df = pd.DataFrame(joined_dict)
     joined_ev_df = joined_ev_df.drop_duplicates(subset=["OUTPUT", "CONTROLLER", "SEEN IN", "EVENT_LABEL"]).reset_index(drop=True)
     trunc_df = joined_ev_df.iloc[:, [0, 1, 2, 3, 5, 6, 9]]
-    
+
     return trunc_df
 
 
 def all_NC_concat(paper_list):
-    paper_path = base_path + "papers_as_tsv/"
-    directory = os.fsencode(paper_path)
-
     # Initialize csv file with column names
-    column_names = ["INPUT", "OUTPUT", "CONTROLLER", "EVENT ID_x", "EVIDENCE", "SEEN IN", "EVENT_LABEL"]
-    base_df = pd.DataFrame(columns = column_names)
-    base_df.to_csv('AllNC.csv', mode='w', header=True)
     base_df = pd.DataFrame()
+    counter = 0
 
     # Loop through papers directory
     for file in paper_list:
@@ -84,7 +79,7 @@ def conformity(csv_path):
     df = df[["INPUT", "OUTPUT", "CONTROLLER", "EVENT ID_x", "EVENT_LABEL", "EVIDENCE", "SEEN IN"]]
     colnames = ["INPUT", "OUTPUT", "CONTROLLER", "EVENT_ID", "EVENT_LABEL", "EVIDENCE", "SEEN_IN"]
     df.columns=colnames
-    
+
     cleaned = df[~df.INPUT.str.contains("uaz", na=False)]
     cleaned = cleaned[~cleaned.OUTPUT.str.contains("uaz", na=False)]
     cleaned = cleaned[~cleaned.CONTROLLER.str.contains("uaz", na=False)]
@@ -94,7 +89,7 @@ def conformity(csv_path):
     cleaned = cleaned[~cleaned.OUTPUT.str.contains("{", na=False)]
     cleaned = cleaned.dropna()
     cleaned = cleaned.reset_index(drop=True)
-    
+
     cleaned.to_csv('AllNC.csv', mode='w', header=True, index=False)
 
 
@@ -110,4 +105,3 @@ file_chunks = np.array_split(np.array(all_files), 40)
 Parallel(n_jobs=-1)(delayed(all_NC_concat)(paper_list) for paper_list in file_chunks)
 
 conformity(base_path + "AllNC.csv")
-
