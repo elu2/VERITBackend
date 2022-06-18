@@ -10,19 +10,20 @@ base_path = "/xdisk/guangyao/elu2/REACHVisualization/"
 
 
 def truncator(path):
-    df = pd.read_csv(path, sep='\t', header=0, quoting=csv.QUOTE_NONE, encoding='utf-8')
+    df = pd.read_csv(path, sep='\t', header=0, quoting=csv.QUOTE_NONE, encoding='utf-8').astype(str)
     ev_df = df.iloc[:, [0, 1, 2, 3, 4, 17, 18]]
     return ev_df
 
 
 def all_Act_concat(paper_list):
     base_df = pd.DataFrame()
+    counter = 0
 
     # Loop through papers directory
     for file in paper_list:
         filename = os.fsdecode(file)
         file_path = paper_path + filename
-        
+
         file_df = truncator(file_path)
         base_df = base_df.append(file_df, ignore_index=True)
 
@@ -33,11 +34,11 @@ def all_Act_concat(paper_list):
 
     # Unload last iteration of <1000 papers
     base_df.to_csv('AllAct.csv', mode='a', header=False, index=False)
-        
-        
+
+
 def cleaner(csv_path):
     df = pd.read_csv(csv_path, sep=',', header=0, encoding='utf-8', error_bad_lines=False).iloc[:, 1:]
-    
+
     no_none = df.query('CONTROLLER!="NONE"').reset_index(drop=True)
     no_pos_reg = no_none.query('EVENT_LABEL!="Regulation (Positive)"').reset_index(drop=True)
     no_neg_reg = no_pos_reg.query('EVENT_LABEL!="Regulation (Negative)"').reset_index(drop=True)
@@ -50,10 +51,10 @@ def cleaner(csv_path):
     cleaned = cleaned[~cleaned.CONTROLLER.str.contains("nan", na=False)]
     cleaned = cleaned.dropna()
     cleaned = cleaned.reset_index(drop=True)
-    
+
     cleaned.to_csv("AllAct.csv", mode='w', header=True, index=False)
-    
-    
+
+
 # Initialize csv file with column names
 column_names = ["INPUT", "OUTPUT", "CONTROLLER", "EVENT_ID", "EVENT_LABEL", "EVIDENCE", "SEEN_IN"]
 base_df = pd.DataFrame(columns = column_names)
