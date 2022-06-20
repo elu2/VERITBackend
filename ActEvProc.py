@@ -1,70 +1,58 @@
 import pandas as pd
-import os
-import time
-import csv
-import datetime
-from joblib import Parallel, delayed
 import numpy as np
-
-base_path = "/xdisk/guangyao/elu2/REACHVisualization/"
+import os
+from joblib import Parallel, delayed
 
 
 def truncator(path):
-    df = pd.read_csv(path, sep='\t', header=0, quoting=csv.QUOTE_NONE, encoding='utf-8').astype(str)
-    ev_df = df.iloc[:, [0, 1, 2, 3, 4, 17, 18]]
+    df = pd.read_csv(path, sep='\t', header=0, quoting=csv.QUOTE_NONE, encoding='utf-8', dtype=str).astype(str)
+    ev_df = df[spec_cols]
     return ev_df
 
 
-def all_Act_concat(paper_list):
-    base_df = pd.DataFrame()
-    counter = 0
+def post_proc(df):
+    # Remove NONE controllers
+    df = df[df.CONTROLLER != "NONE"]
+    # Remove regulation event labels
+    df = df[df["EVENT LABEL"].str.contains("Regulation", na=False) == False]
+    # Remove :uaz: rows
+    drop_rows = (df["INPUT"].str.contains(":uaz:") == False) * (df["OUTPUT"].str.contains(":uaz:") == False) * (df["CONTROLLER"].str.contains(":uaz:") == False)
+    # Remove two double colon species
+    drop_rows = drop_rows * (df["OUTPUT"].str.contains('{') == False)
 
+    df = df[drop_rows]
+
+    return df
+
+
+def concat_papers(paper_list, paper_path="./papers_as_tsv/"):
     # Loop through papers directory
     for file in paper_list:
-        filename = os.fsdecode(file)
         file_path = paper_path + filename
-
         file_df = truncator(file_path)
-        base_df = base_df.append(file_df, ignore_index=True)
 
-        counter += 1
-        if counter % 1000 == 0:
-            base_df.to_csv('AllAct.csv', mode='a', header=False)
-            base_df = pd.DataFrame()
+        file_df.to_csv('AllAct.csv', mode='a', header=False, index=False)
 
-    # Unload last iteration of <1000 papers
-    base_df.to_csv('AllAct.csv', mode='a', header=False, index=False)
+    return None
 
 
-def cleaner(csv_path):
-    df = pd.read_csv(csv_path, sep=',', header=0, encoding='utf-8', error_bad_lines=False).iloc[:, 1:]
+if __name__ == "__main__":
+    # Columns to concat on
+    spec_cols = ["INPUT", "OUTPUT", "CONTROLLER", "EVENT ID", "EVENT LABEL", "EVIDENCE", "SEEN IN"]
 
-    no_none = df.query('CONTROLLER!="NONE"').reset_index(drop=True)
-    no_pos_reg = no_none.query('EVENT_LABEL!="Regulation (Positive)"').reset_index(drop=True)
-    no_neg_reg = no_pos_reg.query('EVENT_LABEL!="Regulation (Negative)"').reset_index(drop=True)
+    # Initialize empty file to append to
+    init_df = pd.DataFrame(columns=spec_cols)
+    if not os.path.exists("AllAct.csv"):
+        init_df.to_csv("AllAct.csv", index=False)
 
-    cleaned = no_neg_reg[~no_neg_reg.INPUT.str.contains("uaz", na=False)]
-    cleaned = cleaned[~cleaned.OUTPUT.str.contains("uaz", na=False)]
-    cleaned = cleaned[~cleaned.CONTROLLER.str.contains("uaz", na=False)]
-    cleaned = cleaned[~cleaned.INPUT.str.contains("uaz", na=False)]
-    cleaned = cleaned[~cleaned.OUTPUT.str.contains("nan", na=False)]
-    cleaned = cleaned[~cleaned.CONTROLLER.str.contains("nan", na=False)]
-    cleaned = cleaned.dropna()
-    cleaned = cleaned.reset_index(drop=True)
+    # get paper paths and chunk for parallelization
+    paper_path = "./papers_as_tsv/"
+    all_files = [x for x in os.listdir(paper_path) if "PMC" in x]
+    file_chunks = np.array_split(np.array(all_files), 40)
 
-    cleaned.to_csv("AllAct.csv", mode='w', header=True, index=False)
-
-
-# Initialize csv file with column names
-column_names = ["INPUT", "OUTPUT", "CONTROLLER", "EVENT_ID", "EVENT_LABEL", "EVIDENCE", "SEEN_IN"]
-base_df = pd.DataFrame(columns = column_names)
-base_df.to_csv('AllAct.csv', mode='w', header=True)
-
-paper_path = base_path + "papers_as_tsv/"
-directory = os.fsencode(paper_path)
-all_files = os.listdir(directory)
-file_chunks = np.array_split(np.array(all_files), 40)
-
-Parallel(n_jobs=-1)(delayed(all_Act_concat)(paper_list) for paper_list in file_chunks)
-
-cleaner(base_path + "AllAct.csv")
+    Parallel(n_jobs=1)(delayed(all_Act_concat)(paper_list) for paper_list in file_chunks)
+    
+    # post-processing of files
+    aa_df = pd.read_csv("AllAct.csv", encoding='utf-8')
+    aa_df = post_proc(aa_df)
+    aa_df.to_csv("AllAct.csv", index=False)
