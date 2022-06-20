@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
 import os
-import csv
 from joblib import Parallel, delayed
+import csv
 
 
 def truncator(path):
@@ -29,7 +29,7 @@ def post_proc(df):
 def concat_papers(paper_list, paper_path="./papers_as_tsv/"):
     # Loop through papers directory
     for file in paper_list:
-        file_path = paper_path + filename
+        file_path = paper_path + file
         file_df = truncator(file_path)
 
         file_df.to_csv('AllAct.csv', mode='a', header=False, index=False)
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     all_files = [x for x in os.listdir(paper_path) if "PMC" in x]
     file_chunks = np.array_split(np.array(all_files), 40)
 
-    Parallel(n_jobs=1)(delayed(all_Act_concat)(paper_list) for paper_list in file_chunks)
+    Parallel(n_jobs=1)(delayed(concat_papers)(paper_list) for paper_list in file_chunks)
     
     # post-processing of files
     aa_df = pd.read_csv("AllAct.csv", encoding='utf-8')
