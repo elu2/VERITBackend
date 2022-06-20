@@ -1,60 +1,104 @@
-# Main purpose: Create ev_id.csv which contains OUTPUT id, CONTROLLER id, and a large corpus of evidence.
-
 import pandas as pd
 
-# Function to get an ID from a species
-def into_id(string):
-    split_string = string.split(":")
-    split_id = split_string[-2] + ":" + split_string[-1]
+
+def preproc(df):
+    # Remove suffixes
+    suff_rows = df["OUTPUT"].str.contains(".*\..{1}$")
+    df["OUTPUT"][suff_rows] = df["OUTPUT"][suff_rows].str[:-2]
+    suff_rows = df["CONTROLLER"].str.contains(".*\..{1}$")
+    df["CONTROLLER"][suff_rows] = df["CONTROLLER"][suff_rows].str[:-2]
+
+    # Split output and controller into their common name and ids
+    # Some databases redundantly repeat their name in the id
+    output_ids = df["OUTPUT"].str.split("::", expand=True).rename(columns={0:"OUTPUT NAME", 1:"OUTPUT ID"})
+    output_ids["OUTPUT ID"] = output_ids["OUTPUT ID"].str.split(":").apply(lambda x: f"{x[-2]}:{x[-1]}")
+
+    contro_ids = df["CONTROLLER"].str.split("::", expand=True).rename(columns={0:"CONTROLLER NAME", 1:"CONTROLLER ID"})
+    contro_ids["CONTROLLER ID"] = contro_ids["CONTROLLER ID"].str.split(":").apply(lambda x: f"{x[-2]}:{x[-1]}")
+
+    df = pd.concat([output_ids, contro_ids, df], axis=1)
     
-    if "." in split_id:
-        split_id = split_id.split(".")[0]
+    return df
+
+
+def concat_ev(evidence_df):
+    evidence_df["EVENT LABEL"] = evidence_df["EVENT LABEL"].apply(lambda x: f"|{x}|")
+    evidence_df["SEEN IN"] = evidence_df["SEEN IN"].apply(lambda x: f"({x})")
     
-    return split_id
+    evidence_df["EVIDENCE"] = evidence_df[["EVIDENCE", "SEEN IN", "EVENT LABEL"]].agg(" ".join, axis=1)
+
+    evidence_df = evidence_df.groupby(["OUTPUT ID","CONTROLLER ID"])["EVIDENCE"].apply("%%".join).reset_index()
+
+    evidence_df.columns = ["target", "source","evidence"]
+
+    return evidence_df
 
 
-# Read in and combine the two important csv files.
-AllAct_df = pd.read_csv('AllAct.csv', encoding='utf-8')
-AllAct_df = AllAct_df[~AllAct_df.CONTROLLER.str.contains('NONE')].reset_index(drop=True)
-AllNC_df = pd.read_csv("AllNC.csv", encoding='utf-8')
-All_df = AllAct_df.append(AllNC_df, ignore_index=True)
-
-# Trims off curly brackets in anomalies
-All_df["INPUT"] = All_df["INPUT"].str.strip("{}")
-All_df["OUTPUT"] = All_df["OUTPUT"].str.strip("{}")
-All_df["CONTROLLER"] = All_df["CONTROLLER"].str.strip("{}")
-
-# Converting to dictionary for a more workable format
-ev_df_dict = All_df.to_dict()
-
-# Adds new ID columns to dictionary
-ev_df_dict["OUTPUT_ID"] = []
-ev_df_dict["CONTROLLER_ID"] = []
-
-# Store indexes where INPUT is an EVENT_ID. Nothing is done with this as of now.
-anomalies = []
-
-# Populates the new ID columns
-for i in range(len(ev_df_dict["OUTPUT"])):
-    try:
-        ev_df_dict["OUTPUT_ID"].append(into_id(ev_df_dict["OUTPUT"][i]))
-        ev_df_dict["CONTROLLER_ID"].append(into_id(ev_df_dict["CONTROLLER"][i]))
+def get_edges(df):
+    # Count occurences of interactions
+    counted = df.groupby(by=["OUTPUT ID", "CONTROLLER ID", "EVENT LABEL"]).size()
+    counted = pd.DataFrame(counted).reset_index().rename(columns={0: "COUNTER"})
+    df = df.merge(counted, on=["OUTPUT ID", "CONTROLLER ID", "EVENT LABEL"])
     
-    # Catches when EVENT_ID is an output.
-    except IndexError:
-        anomalies.append(i)
-        ev_df_dict["OUTPUT_ID"].append(ev_df_dict["OUTPUT"][i])
-        ev_df_dict["CONTROLLER_ID"].append(ev_df_dict["CONTROLLER"][i])
-        continue
-        
-# Converts lists into ordered pandas series object
-ev_df_dict["OUTPUT_ID"] = pd.Series(ev_df_dict["OUTPUT_ID"])
-ev_df_dict["CONTROLLER_ID"] = pd.Series(ev_df_dict["CONTROLLER_ID"])
+    # Sum together occurences of event-dependent interactions
+    inter_cts = df.groupby(["OUTPUT ID", "CONTROLLER ID", "EVENT LABEL"])["COUNTER"].sum().reset_index()
+    # Sum together all occurences of interaction
+    inter_tts = inter_cts.groupby(["OUTPUT ID", "CONTROLLER ID"])["COUNTER"].sum().reset_index()
 
-# Convert to dataframe...
-ev_id_df = pd.DataFrame.from_dict(ev_df_dict)
-ev_id_df = ev_id_df.drop_duplicates(subset=["OUTPUT_ID", "CONTROLLER_ID", "SEEN_IN"]).reset_index(drop=True)
-ev_id_df = ev_id_df.astype(str)
+    event_pivot = inter_cts.pivot(index=["OUTPUT ID", "CONTROLLER ID"], columns="EVENT LABEL", values="COUNTER").reset_index()
 
-# ... to save as a csv file.
-ev_id_df.to_csv("AllActNC.csv", index=False)
+    # inter_tts.merge(event_pivot, )
+    event_props = inter_tts.merge(event_pivot, on=["OUTPUT ID", "CONTROLLER ID"])
+
+    event_props["Activation (Negative)"] = event_props["Activation (Negative)"] / event_props["COUNTER"]
+    event_props["Activation (Positive)"] = event_props["Activation (Positive)"] / event_props["COUNTER"]
+    event_props["Inconclusive"] = event_props["Inconclusive"] / event_props["COUNTER"]
+
+    event_props = event_props.fillna(0)
+    
+    return event_props
+
+
+def get_nodes(df):
+    # Stack relevant columns and drop duplicates
+    outputs = full_df[["OUTPUT NAME", "OUTPUT ID"]]
+    outputs.columns = ["Name", "ID"]
+    
+    controllers = full_df[["CONTROLLER NAME", "CONTROLLER ID"]]
+    controllers.columns = ["Name", "ID"]
+
+    nodes = pd.concat([outputs, controllers]).drop_duplicates()
+    
+    return nodes
+
+
+if __name__ == "__main__":
+    # Read in and combine the two important csv files.
+    act_df = pd.read_csv('AllAct.csv', encoding='utf-8')
+    nc_df = pd.read_csv("AllNC.csv", encoding='utf-8')
+
+    full_df = pd.concat([act_df, nc_df], ignore_index=True); del act_df; del nc_df
+    full_df = full_df.drop(columns="INPUT") 
+
+    full_df = preproc(full_df)
+
+    # Process and push evidence into its separate file
+    evidence = full_df[["OUTPUT ID", "CONTROLLER ID", "EVENT LABEL", "EVIDENCE", "SEEN IN"]]
+    evidence = concat_ev(evidence)
+    evidence.to_csv("evidence.csv", index=False)
+    full_df.drop(columns="EVIDENCE")
+    del evidence
+    
+    # Write out for record-keeping
+    full_df.to_csv("AllActNC.csv", index=False)
+    
+    # Get nodes
+    nodes = get_nodes(full_df)
+    nodes.to_csv("nodes.csv", index=False)
+    
+    # Get confidence of interaction IDs and write as edges
+    # Lose common names
+    edges = get_edges(full_df)
+    edges.columns = ["target", "source", "thickness", "neg_color", "pos_color", "inc_color"]
+    edges.to_csv("edges.csv", index=False)
+    
