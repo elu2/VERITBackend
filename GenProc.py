@@ -4,6 +4,16 @@ import numpy as np
 
 
 def preproc(df):
+    # Handle when output is an event id
+    drop_rows = df["OUTPUT"].str.contains(":", regex=False)
+    drop_rows = (df["OUTPUT"].str.contains("(.*::.*::.*)|(.*::(\..){0,1}$)") == False) * drop_rows
+    drop_rows = (df["OUTPUT"].str.contains("{", regex=False) == False) * drop_rows
+
+    drop_rows = (df["CONTROLLER"].str.contains(":", regex=False) == True) * drop_rows
+    drop_rows = (df["CONTROLLER"].str.contains("(.*::.*::.*)|(.*::(\..){0,1}$)") == False) * drop_rows
+    drop_rows = (df["CONTROLLER"].str.contains("{", regex=False) == False) * drop_rows
+    df = df[drop_rows].reset_index(drop=True)
+
     # Remove suffixes
     suff_rows = df["OUTPUT"].str.contains(".*\..{1}$")
     df["OUTPUT"][suff_rows] = df["OUTPUT"][suff_rows].str[:-2]
@@ -12,14 +22,18 @@ def preproc(df):
 
     # Split output and controller into their common name and ids
     # Some databases redundantly repeat their name in the id
-    output_ids = df["OUTPUT"].str.split("::", expand=True).rename(columns={0:"OUTPUT NAME", 1:"OUTPUT ID"})
-    output_ids["OUTPUT ID"] = output_ids["OUTPUT ID"].str.split(":").apply(lambda x: f"{x[-2]}:{x[-1]}")
+    output_ids = df["OUTPUT"].str.split("::", expand=True, regex=False).rename(columns={0:"OUTPUT NAME", 1:"OUTPUT ID"})
+    output_ids["OUTPUT ID"] = output_ids["OUTPUT ID"].str.split(":", regex=False).apply(lambda x: f"{x[-2]}:{x[-1]}")
+    anom_rows = output_ids["OUTPUT ID"].str.contains(".", regex=False)
+    output_ids["OUTPUT ID"][anom_rows] = output_ids["OUTPUT ID"][anom_rows].str.split(".", regex=False).apply(lambda x: x[0])
 
-    contro_ids = df["CONTROLLER"].str.split("::", expand=True).rename(columns={0:"CONTROLLER NAME", 1:"CONTROLLER ID"})
-    contro_ids["CONTROLLER ID"] = contro_ids["CONTROLLER ID"].str.split(":").apply(lambda x: f"{x[-2]}:{x[-1]}")
+    contro_ids = df["CONTROLLER"].str.split("::", expand=True, regex=False).rename(columns={0:"CONTROLLER NAME", 1:"CONTROLLER ID"})
+    contro_ids["CONTROLLER ID"] = contro_ids["CONTROLLER ID"].str.split(":", regex=False).apply(lambda x: f"{x[-2]}:{x[-1]}")
+    anom_rows = contro_ids["CONTROLLER ID"].str.contains(".", regex=False)
+    contro_ids["CONTROLLER ID"][anom_rows] = contro_ids["CONTROLLER ID"][anom_rows].str.split(".", regex=False).apply(lambda x: x[0])
 
     df = pd.concat([output_ids, contro_ids, df], axis=1)
-    
+
     return df
 
 
