@@ -8,10 +8,13 @@ def preproc(df):
     drop_rows = df["OUTPUT"].str.contains(":", regex=False)
     drop_rows = (df["OUTPUT"].str.contains("(.*::.*::.*)|(.*::(\..){0,1}$)") == False) * drop_rows
     drop_rows = (df["OUTPUT"].str.contains("{", regex=False) == False) * drop_rows
+    drop_rows = (df["OUTPUT"].str.contains("[", regex=False) == False) * drop_rows
 
     drop_rows = (df["CONTROLLER"].str.contains(":", regex=False) == True) * drop_rows
     drop_rows = (df["CONTROLLER"].str.contains("(.*::.*::.*)|(.*::(\..){0,1}$)") == False) * drop_rows
     drop_rows = (df["CONTROLLER"].str.contains("{", regex=False) == False) * drop_rows
+    drop_rows = (df["OUTPUT"].str.contains("[", regex=False) == False) * drop_rows
+
     df = df[drop_rows].reset_index(drop=True)
 
     # Remove suffixes
@@ -91,15 +94,26 @@ def get_nodes(df):
     return nodes
 
 
+def normalize(vals):
+    vals = np.log(vals)
+    
+    maxv = max(vals)
+    minv = min(vals)
+    
+    normed = (vals - minv) / (maxv - minv)
+    
+    return normed
+
+
 def pagerank_nodes(nodes, edges):
     G = nx.from_pandas_edgelist(edges, "source", "target", edge_attr="thickness")
     pr_dict = nx.pagerank(G, weight="thickness")
     pr_df = pd.DataFrame(pd.Series(pr_dict)).reset_index()
 
     pr_df.columns = ["Id", "PR"]
-    pr_df["PR"] = (pr_df["PR"] - np.mean(pr_df["PR"]))/np.std(pr_df["PR"])
+    pr_df["PR"] = normalize(pr_df["PR"])
     
-    nodes = nodes.merge(pr_df, on="Id", how="left")
+    nodes = nodes.merge(pr_df, on="Id")
     
     return nodes
 
@@ -123,7 +137,6 @@ if __name__ == "__main__":
     
     # Write out for record-keeping
     full_df.to_csv("AllActNC.csv", index=False)
-    
     
     # Get confidence of interaction IDs and write as edges
     # drop_degree: drop interactions with below-threshold occurrences
