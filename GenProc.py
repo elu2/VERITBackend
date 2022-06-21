@@ -1,4 +1,6 @@
 import pandas as pd
+import networkx as nx
+import numpy as np
 
 
 def preproc(df):
@@ -34,7 +36,7 @@ def concat_ev(evidence_df):
     return evidence_df
 
 
-def get_edges(df):
+def get_edges(df, drop_degree=1):
     # Count occurences of interactions
     counted = df.groupby(by=["OUTPUT ID", "CONTROLLER ID", "EVENT LABEL"]).size()
     counted = pd.DataFrame(counted).reset_index().rename(columns={0: "COUNTER"})
@@ -44,10 +46,10 @@ def get_edges(df):
     inter_cts = df.groupby(["OUTPUT ID", "CONTROLLER ID", "EVENT LABEL"])["COUNTER"].sum().reset_index()
     # Sum together all occurences of interaction
     inter_tts = inter_cts.groupby(["OUTPUT ID", "CONTROLLER ID"])["COUNTER"].sum().reset_index()
+    
 
     event_pivot = inter_cts.pivot(index=["OUTPUT ID", "CONTROLLER ID"], columns="EVENT LABEL", values="COUNTER").reset_index()
 
-    # inter_tts.merge(event_pivot, )
     event_props = inter_tts.merge(event_pivot, on=["OUTPUT ID", "CONTROLLER ID"])
 
     event_props["Activation (Negative)"] = event_props["Activation (Negative)"] / event_props["COUNTER"]
@@ -56,18 +58,34 @@ def get_edges(df):
 
     event_props = event_props.fillna(0)
     
+    if drop_degree > 0:
+        event_props = event_props[event_props["COUNTER"] > drop_degree]
+    
     return event_props
 
 
 def get_nodes(df):
     # Stack relevant columns and drop duplicates
     outputs = full_df[["OUTPUT NAME", "OUTPUT ID"]]
-    outputs.columns = ["Name", "ID"]
+    outputs.columns = ["Label", "Id"]
     
     controllers = full_df[["CONTROLLER NAME", "CONTROLLER ID"]]
-    controllers.columns = ["Name", "ID"]
+    controllers.columns = ["Label", "Id"]
 
     nodes = pd.concat([outputs, controllers]).drop_duplicates()
+    
+    return nodes
+
+
+def pagerank_nodes(nodes, edges):
+    G = nx.from_pandas_edgelist(edges, "source", "target", edge_attr="thickness")
+    pr_dict = nx.pagerank(G, weight="thickness")
+    pr_df = pd.DataFrame(pd.Series(pr_dict)).reset_index()
+
+    pr_df.columns = ["Id", "PR"]
+    pr_df["PR"] = (pr_df["PR"] - np.mean(pr_df["PR"]))/np.std(pr_df["PR"])
+    
+    nodes = nodes.merge(pr_df, on="Id", how="left")
     
     return nodes
 
@@ -92,13 +110,14 @@ if __name__ == "__main__":
     # Write out for record-keeping
     full_df.to_csv("AllActNC.csv", index=False)
     
-    # Get nodes
-    nodes = get_nodes(full_df)
-    nodes.to_csv("nodes.csv", index=False)
     
     # Get confidence of interaction IDs and write as edges
-    # Lose common names
-    edges = get_edges(full_df)
+    # drop_degree: drop interactions with below-threshold occurrences
+    edges = get_edges(full_df, drop_degree=1)
     edges.columns = ["target", "source", "thickness", "neg_color", "pos_color", "inc_color"]
     edges.to_csv("edges.csv", index=False)
     
+    # Get nodes
+    nodes = get_nodes(full_df)
+    nodes = pagerank_nodes(nodes, edges)
+    nodes.to_csv("nodes.csv", index=False)    
