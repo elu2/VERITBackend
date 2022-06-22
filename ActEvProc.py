@@ -51,7 +51,7 @@ if __name__ == "__main__":
     all_files = [x for x in os.listdir(paper_path) if "PMC" in x]
     file_chunks = np.array_split(np.array(all_files), 40)
 
-    Parallel(n_jobs=1)(delayed(concat_papers)(paper_list) for paper_list in file_chunks)
+    Parallel(n_jobs=-1)(delayed(concat_papers)(paper_list) for paper_list in file_chunks)
     
     # post-processing of files
     aa_df = pd.read_csv("AllAct.csv", encoding='utf-8')
