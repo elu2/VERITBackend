@@ -48,7 +48,7 @@ def concat_ev(evidence_df):
 
     evidence_df = evidence_df.groupby(["OUTPUT ID","CONTROLLER ID"])["EVIDENCE"].apply("%%".join).reset_index()
 
-    evidence_df.columns = ["target", "source","evidence"]
+    evidence_df.columns = ["target", "source", "evidence"]
 
     return evidence_df
 
@@ -59,13 +59,10 @@ def get_edges(df, drop_degree=1):
     counted = pd.DataFrame(counted).reset_index().rename(columns={0: "COUNTER"})
     df = df.merge(counted, on=["OUTPUT ID", "CONTROLLER ID", "EVENT LABEL"])
     
-    # Sum together occurences of event-dependent interactions
-    inter_cts = df.groupby(["OUTPUT ID", "CONTROLLER ID", "EVENT LABEL"])["COUNTER"].sum().reset_index()
     # Sum together all occurences of interaction
-    inter_tts = inter_cts.groupby(["OUTPUT ID", "CONTROLLER ID"])["COUNTER"].sum().reset_index()
+    inter_tts = counted.groupby(["OUTPUT ID", "CONTROLLER ID"])["COUNTER"].sum().reset_index()
     
-
-    event_pivot = inter_cts.pivot(index=["OUTPUT ID", "CONTROLLER ID"], columns="EVENT LABEL", values="COUNTER").reset_index()
+    event_pivot = counted.pivot(index=["OUTPUT ID", "CONTROLLER ID"], columns="EVENT LABEL", values="COUNTER").reset_index()
 
     event_props = inter_tts.merge(event_pivot, on=["OUTPUT ID", "CONTROLLER ID"])
 
@@ -134,17 +131,17 @@ if __name__ == "__main__":
     evidence.to_csv("evidence.csv", index=False)
     full_df.drop(columns="EVIDENCE")
     del evidence
-    
+
     # Write out for record-keeping
     full_df.to_csv("AllActNC.csv", index=False)
-    
+
     # Get confidence of interaction IDs and write as edges
     # drop_degree: drop interactions with below-threshold occurrences
     edges = get_edges(full_df, drop_degree=1)
     edges.columns = ["target", "source", "thickness", "neg_color", "pos_color", "inc_color"]
     edges.to_csv("edges.csv", index=False)
-    
+
     # Get nodes
     nodes = get_nodes(full_df)
     nodes = pagerank_nodes(nodes, edges)
-    nodes.to_csv("nodes.csv", index=False)    
+    nodes.to_csv("nodes.csv", index=False)
