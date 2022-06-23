@@ -3,8 +3,10 @@ import networkx as nx
 import numpy as np
 
 
+# Preprocessing concatenated papers by removing anomalies and separating id from name
 def preproc(df):
-    # Handle when output is an event id
+    # Handle when output is an event id and anomalies ending with ::. or ::
+    # Removes binding events and bracketed, mutant-specific strings
     drop_rows = df["OUTPUT"].str.contains(":", regex=False)
     drop_rows = (df["OUTPUT"].str.contains("(.*::.*::.*)|(.*::(\..){0,1}$)") == False) * drop_rows
     drop_rows = (df["OUTPUT"].str.contains("{", regex=False) == False) * drop_rows
@@ -40,12 +42,21 @@ def preproc(df):
     return df
 
 
-def concat_ev(evidence_df):
+# Concatenate evidence by interaction pair. Does not include low-occurrence interactions
+def concat_ev(evidence_df, drop_degree=1):
+    # Remove interactions with low occurrences
+    count_df = evidence_df.groupby(["OUTPUT ID", "CONTROLLER ID"]).size().reset_index().rename(columns={0: "TOT COUNTER"})
+    count_df = count_df[count_df["TOT COUNTER"] > drop_degree].reset_index(drop=True)
+    evidence_df = count_df.merge(evidence_df, on=["OUTPUT ID", "CONTROLLER ID"]).drop("TOT COUNTER", axis=1)
+
+    # Add separators to labels and PMCIDs for later
     evidence_df["EVENT LABEL"] = evidence_df["EVENT LABEL"].apply(lambda x: f"|{x}|")
     evidence_df["SEEN IN"] = evidence_df["SEEN IN"].apply(lambda x: f"({x})")
     
+    # Join evidence, id, and label into one
     evidence_df["EVIDENCE"] = evidence_df[["EVIDENCE", "SEEN IN", "EVENT LABEL"]].agg(" ".join, axis=1)
 
+    # Join all processed evidence by interaction pair
     evidence_df = evidence_df.groupby(["OUTPUT ID","CONTROLLER ID"])["EVIDENCE"].apply("%%".join).reset_index()
 
     evidence_df.columns = ["target", "source", "evidence"]
@@ -53,6 +64,7 @@ def concat_ev(evidence_df):
     return evidence_df
 
 
+# Counts interactions and create confidence values for each interaction type
 def get_edges(df, drop_degree=1):
     # Count occurences of interactions
     counted = df.groupby(by=["OUTPUT ID", "CONTROLLER ID", "EVENT LABEL"]).size()
@@ -78,6 +90,7 @@ def get_edges(df, drop_degree=1):
     return event_props
 
 
+# Get all encountered IDs and names
 def get_nodes(df):
     # Stack relevant columns and drop duplicates
     outputs = full_df[["OUTPUT NAME", "OUTPUT ID"]]
@@ -91,6 +104,7 @@ def get_nodes(df):
     return nodes
 
 
+# Normalization function for pagerank values. Subject to change.
 def normalize(vals):
     vals = np.log(vals)
     
@@ -102,6 +116,7 @@ def normalize(vals):
     return normed
 
 
+# Assigns each node a normalized pagerank value
 def pagerank_nodes(nodes, edges):
     G = nx.from_pandas_edgelist(edges, "source", "target", edge_attr="thickness")
     pr_dict = nx.pagerank(G, weight="thickness")
