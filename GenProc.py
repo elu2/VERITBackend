@@ -76,9 +76,9 @@ def get_edges(df, drop_degree=1):
     
     event_pivot = counted.pivot(index=["OUTPUT ID", "CONTROLLER ID"], columns="EVENT LABEL", values="COUNTER").reset_index()
 
-    event_props = inter_tts.merge(event_pivot, on=["OUTPUT ID", "CONTROLLER ID"])
+    event_props = inter_tts.merge(event_pivot, on=["OUTPUT ID", "CONTROLLER ID"]).fillna(0)
 
-    event_props["CONF"] = event_props["Activation (Positive)"] - event_props["Activation (Negative)"] / event_props["COUNTER"]
+    event_props["CONF"] = (event_props["Activation (Positive)"] - event_props["Activation (Negative)"]) / event_props["COUNTER"]
     
     event_props = event_props.drop(columns=["Activation (Positive)", "Activation (Negative)", "Inconclusive"])
 
