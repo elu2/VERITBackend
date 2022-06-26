@@ -33,17 +33,21 @@ def truncator(path):
 
 
 def post_proc(df):
-    # Remove NONE controllers
+    # Remove rows that will be deferred to NCEvProc.py
     df = df[df.CONTROLLER != "NONE"]
-    # Remove regulation event labels
     df = df[df["EVENT LABEL"].str.contains("Regulation", na=False) == False]
     # Remove :uaz: rows
     drop_rows = (df["INPUT"].str.contains(":uaz:") == False) * (df["OUTPUT"].str.contains(":uaz:") == False) * (df["CONTROLLER"].str.contains(":uaz:") == False)
     # Remove two double colon species
     drop_rows = drop_rows * (df["OUTPUT"].str.contains('{') == False)
-
     df = df[drop_rows]
+
+    # Replace associations labels with conventional labels
+    df["EVENT LABEL"] = df["EVENT LABEL"].replace({"Association (Positive)": "Activation (Positive)",
+                                                   "Association (Negative)": "Activation (Negative)",
+                                                   "Association (UNKNOWN)": "Inconclusive"})
     
+    # Remove HTML artifacts from evidence
     df["EVIDENCE"] = df["EVIDENCE"].apply(lambda x: TagStripper(x).raw_sentence)
 
     return df
