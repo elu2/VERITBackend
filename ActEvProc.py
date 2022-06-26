@@ -4,6 +4,27 @@ import os
 from joblib import Parallel, delayed
 import csv
 
+from html.parser import HTMLParser
+from io import StringIO
+import re
+
+
+class TagStripper(HTMLParser):
+    """ Use this class to strip markup and get the attributes of the tags as properties of the instance """
+    def __init__(self, data:str):
+        super().__init__()
+        self._raw_sentence = StringIO()
+        self._data = data
+        self.feed(data)
+        self.space_remover = re.compile(r'\s+')
+
+    def handle_data(self, data: str) -> None:
+        self._raw_sentence.write(data)
+
+    @property
+    def raw_sentence(self) -> str:
+        return self.space_remover.sub(' ', self._raw_sentence.getvalue().strip())
+
 
 def truncator(path):
     df = pd.read_csv(path, sep='\t', header=0, quoting=csv.QUOTE_NONE, encoding='utf-8', dtype=str).astype(str)
@@ -22,6 +43,8 @@ def post_proc(df):
     drop_rows = drop_rows * (df["OUTPUT"].str.contains('{') == False)
 
     df = df[drop_rows]
+    
+    df["EVIDENCE"] = df["EVIDENCE"].apply(lambda x: TagStripper(x).raw_sentence)
 
     return df
 
