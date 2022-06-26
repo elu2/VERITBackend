@@ -78,12 +78,10 @@ def get_edges(df, drop_degree=1):
 
     event_props = inter_tts.merge(event_pivot, on=["OUTPUT ID", "CONTROLLER ID"])
 
-    event_props["Activation (Negative)"] = event_props["Activation (Negative)"] / event_props["COUNTER"]
-    event_props["Activation (Positive)"] = event_props["Activation (Positive)"] / event_props["COUNTER"]
-    event_props["Inconclusive"] = event_props["Inconclusive"] / event_props["COUNTER"]
-
-    event_props = event_props.fillna(0)
+    event_props["CONF"] = event_props["Activation (Positive)"] - event_props["Activation (Negative)"] / event_props["COUNTER"]
     
+    event_props = event_props.drop(columns=["Activation (Positive)", "Activation (Negative)", "Inconclusive"])
+
     if drop_degree > 0:
         event_props = event_props[event_props["COUNTER"] > drop_degree]
     
@@ -153,7 +151,7 @@ if __name__ == "__main__":
     # Get confidence of interaction IDs and write as edges
     # drop_degree: drop interactions with below-threshold occurrences
     edges = get_edges(full_df, drop_degree=1)
-    edges.columns = ["target", "source", "thickness", "neg_color", "pos_color", "inc_color"]
+    edges.columns = ["target", "source", "thickness", "color"]
     edges.to_csv("edges.csv", index=False)
 
     # Get nodes
