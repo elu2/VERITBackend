@@ -13,6 +13,9 @@ def preproc(df):
     drop_rows = (df["OUTPUT"].str.contains("[", regex=False) == False) * drop_rows
     drop_rows = (df["OUTPUT"].str.contains("::uberon:UBERON:", regex=False) == False) * drop_rows
     drop_rows = (df["OUTPUT"].str.contains("::cl:CL:", regex=False) == False) * drop_rows
+    # Manually remove Mice (m may be capitalized), Mass
+    drop_rows = (df["OUTPUT"].str.contains("ice::uniprot:P41944", regex=False) == False) * drop_rows
+    drop_rows = (df["OUTPUT"].str.contains("ass::go:GO:0016049", regex=False) == False) * drop_rows
     
     drop_rows = (df["CONTROLLER"].str.contains(":", regex=False) == True) * drop_rows
     drop_rows = (df["CONTROLLER"].str.contains("(.*::.*::.*)|(.*::(\..){0,1}$)") == False) * drop_rows
@@ -20,6 +23,9 @@ def preproc(df):
     drop_rows = (df["CONTROLLER"].str.contains("[", regex=False) == False) * drop_rows
     drop_rows = (df["CONTROLLER"].str.contains("::uberon:UBERON:", regex=False) == False) * drop_rows
     drop_rows = (df["CONTROLLER"].str.contains("::cl:CL:", regex=False) == False) * drop_rows
+    # Manually remove Mice, Mass
+    drop_rows = (df["CONTROLLER"].str.contains("ice::uniprot:P41944", regex=False) == False) * drop_rows
+    drop_rows = (df["CONTROLLER"].str.contains("ass::go:GO:0016049", regex=False) == False) * drop_rows
 
     df = df[drop_rows].reset_index(drop=True)
 
