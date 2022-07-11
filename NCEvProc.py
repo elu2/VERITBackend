@@ -38,7 +38,7 @@ def net_event(df):
     nc_df = nc_df.merge(id_df, left_on="INPUT", right_on="EVENT ID", suffixes=("", " INIT"))
 
     # Define maps to replace values with
-    map_dict_el = {"Regulation (Negative)": 1, "Regulation (Positive)": -1}
+    map_dict_el = {"Regulation (Negative)": -1, "Regulation (Positive)": 1}
     map_dict_eli = {"Transcription": 1, "Amount": 1, "DecreaseAmount": -1, "Ubiquitination": -1}
     final_map = {1: "Activation (Positive)", -1: "Activation (Negative)", 0: "Inconclusive"}
     
