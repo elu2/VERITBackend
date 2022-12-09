@@ -59,7 +59,7 @@ def concat_papers(paper_list, paper_path="./papers_as_tsv/"):
         file_path = paper_path + file
         file_df = truncator(file_path)
 
-        file_df.to_csv('AllAct.csv', mode='a', header=False, index=False)
+        file_df.to_csv('NewAllAct.csv', mode='a', header=False, index=False)
 
     return None
 
@@ -70,17 +70,22 @@ if __name__ == "__main__":
 
     # Initialize empty file to append to
     init_df = pd.DataFrame(columns=spec_cols)
-    if not os.path.exists("AllAct.csv"):
-        init_df.to_csv("AllAct.csv", index=False)
+    if not os.path.exists("NewAllAct.csv"):
+        init_df.to_csv("NewAllAct.csv", index=False)
 
     # get paper paths and chunk for parallelization
-    paper_path = "./papers_as_tsv/"
-    all_files = [x for x in os.listdir(paper_path) if "PMC" in x]
-    file_chunks = np.array_split(np.array(all_files), 40)
+    with open('torun.log.pkl', 'rb') as f:
+        to_run = pickle.read(f)
+    to_run = [x for x in to_run if "PMC" in x]
+    file_chunks = np.array_split(np.array(to_run), 40)
 
     Parallel(n_jobs=-1)(delayed(concat_papers)(paper_list) for paper_list in file_chunks)
     
     # post-processing of files
-    aa_df = pd.read_csv("AllAct.csv", encoding='utf-8')
+    aa_df = pd.read_csv("NewAllAct.csv", encoding='utf-8')
     aa_df = post_proc(aa_df)
-    aa_df.to_csv("AllAct.csv", index=False)
+    aa_df.to_csv("NewAllAct.csv", index=False)
+    
+    with open("runs.log", "w") as f:
+        time_now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        f.write(f"{time_now} (ActEvProc.py) Finished.\n")

@@ -139,14 +139,21 @@ def pagerank_nodes(nodes, edges):
 
 
 if __name__ == "__main__":
-    # Read in and combine the two important csv files.
-    act_df = pd.read_csv('AllAct.csv', encoding='utf-8')
-    nc_df = pd.read_csv("AllNC.csv", encoding='utf-8')
-
-    full_df = pd.concat([act_df, nc_df], ignore_index=True); del act_df; del nc_df
-    full_df = full_df.drop(columns="INPUT") 
-
-    full_df = preproc(full_df)
+    # Read in and combine the two (new) important csv files.
+    new_act_df = pd.read_csv('NewAllAct.csv', encoding='utf-8')
+    new_nc_df = pd.read_csv("NewAllNC.csv", encoding='utf-8')
+    
+    new_full_df = pd.concat([new_act_df, new_nc_df], ignore_index=True); del new_act_df; del new_nc_df
+    new_full_df = new_full_df.drop(columns="INPUT")
+    # Preprocess only the new files (bottleneck)
+    new_full_df = preproc(new_full_df)
+    
+    # Read in old and combine new and (preprocessed) old
+    if os.path.exists("./AllActNC.csv"):
+        old_act_nc_df = pd.read_csv('AllActNC.csv', encoding='utf-8')
+        full_df = pd.concat([old_act_nc_df, new_full_df], ignore_index=True); del old_act_nc_df; del new_full_df
+    else:
+        full_df = new_full_df; del new_full_df
 
     # Process and push evidence into its separate file
     evidence = full_df[["OUTPUT ID", "CONTROLLER ID", "EVENT LABEL", "EVIDENCE", "SEEN IN"]]
@@ -168,3 +175,24 @@ if __name__ == "__main__":
     nodes = get_nodes(full_df)
     nodes = pagerank_nodes(nodes, edges)
     nodes.to_csv("nodes.csv", index=False)
+    
+    # Update logs
+    # Read in old
+    if os.path.exists("./pat.log.pkl"):
+        with open('pat.log.pkl', 'rb') as f:
+            prev_pat = pickle.load(f)
+    else:
+        prev_pat = []
+    # Read in newly processed
+    with open('torun.log.pkl', 'rb') as f:
+        to_run = pickle.read(f)
+    # Combine and write out new
+    prev_pat.extend(to_run)
+    with open('pat.log.pkl', 'wb') as f:
+        prev_pat = [x for x in os.listdir(prev_pat) if "PMC" in x]
+        pickle.dump(prev_pat, f)
+    
+    with open("runs.log", "w") as f:
+        time_now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        f.write(f"{time_now} (GenProc.py) Finished.\n")
+    
