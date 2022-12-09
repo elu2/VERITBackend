@@ -182,7 +182,7 @@ if __name__ == "__main__":
     # Combine and write out new
     prev_pat.extend(to_run)
     with open('pat.log.pkl', 'wb') as f:
-        prev_pat = [x for x in os.listdir(prev_pat) if "PMC" in x]
+        prev_pat = [x for x in prev_pat if "PMC" in x]
         pickle.dump(prev_pat, f)
 
     with open("runs.log", "a") as f:
