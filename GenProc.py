@@ -187,7 +187,7 @@ if __name__ == "__main__":
         prev_pat = []
     # Read in newly processed
     with open('torun.log.pkl', 'rb') as f:
-        to_run = pickle.read(f)
+        to_run = pickle.load(f)
     # Combine and write out new
     prev_pat.extend(to_run)
     with open('pat.log.pkl', 'wb') as f:

@@ -109,7 +109,7 @@ if __name__ == "__main__":
 
     # get paper paths and chunk for parallelization
     with open('torun.log.pkl', 'rb') as f:
-        to_run = pickle.read(f)
+        to_run = pickle.load(f)
     to_run = [x for x in to_run if "PMC" in x]
     file_chunks = np.array_split(np.array(to_run), 40)
 
