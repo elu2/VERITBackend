@@ -3,6 +3,7 @@ import networkx as nx
 import numpy as np
 import datetime
 import pickle
+import os
 
 
 # Preprocessing concatenated papers by removing anomalies and separating id from name
@@ -178,8 +179,12 @@ if __name__ == "__main__":
     nodes = pagerank_nodes(nodes, edges)
     nodes.to_csv("nodes.csv", index=False)
     
+    # Remove new files created by NCEvProc and ActEvProc
+    os.remove("./NewAllAct.csv")
+    os.remove("./NewAllNC.csv")
+    
     # Update logs
-    # Read in old
+    # Read in old files used
     if os.path.exists("./pat.log.pkl"):
         with open('pat.log.pkl', 'rb') as f:
             prev_pat = pickle.load(f)
@@ -193,8 +198,7 @@ if __name__ == "__main__":
     with open('pat.log.pkl', 'wb') as f:
         prev_pat = [x for x in os.listdir(prev_pat) if "PMC" in x]
         pickle.dump(prev_pat, f)
-    
+
     with open("runs.log", "a") as f:
         time_now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         f.write(f"{time_now} (GenProc.py) Finished.\n")
-    
