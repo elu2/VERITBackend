@@ -7,6 +7,7 @@ import csv
 from html.parser import HTMLParser
 from io import StringIO
 import re
+import datetime
 
 
 class TagStripper(HTMLParser):
