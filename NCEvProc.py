@@ -8,6 +8,7 @@ from html.parser import HTMLParser
 from io import StringIO
 import re
 import datetime
+import pickle
 
 
 class TagStripper(HTMLParser):
