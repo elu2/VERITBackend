@@ -120,6 +120,6 @@ if __name__ == "__main__":
     aa_df = post_proc(aa_df)
     aa_df.to_csv("NewAllNC.csv", index=False)
 
-    with open("runs.log", "w") as f:
+    with open("runs.log", "a") as f:
         time_now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         f.write(f"{time_now} (NCEvProc.py) Finished.\n")

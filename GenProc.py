@@ -194,7 +194,7 @@ if __name__ == "__main__":
         prev_pat = [x for x in os.listdir(prev_pat) if "PMC" in x]
         pickle.dump(prev_pat, f)
     
-    with open("runs.log", "w") as f:
+    with open("runs.log", "a") as f:
         time_now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         f.write(f"{time_now} (GenProc.py) Finished.\n")
     

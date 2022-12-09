@@ -22,6 +22,6 @@ to_pat = np.setdiff1d(next_pat, prev_pat, assume_unique=True)
 with open('torun.log.pkl', 'wb') as f:
     pickle.dump(list(to_pat), f)
 
-with open("runs.log", "w") as f:
+with open("runs.log", "a") as f:
     time_now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     f.write(f"{time_now} (startup.py) Found {len(to_pat)} new files.\n")
