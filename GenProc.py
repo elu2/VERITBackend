@@ -14,6 +14,7 @@ def preproc(df):
     
     drop_rows = comb_ser.str.contains("|".join(offenders), regex=False) == False
     drop_rows = (df["OUTPUT"].str.contains("(.*::.*::.*)|(.*::(\..){0,1}$)") == False) * drop_rows
+    drop_rows = (df["OUTPUT"].str.contains(":") == True) * drop_rows
     drop_rows = (df["CONTROLLER"].str.contains("(.*::.*::.*)|(.*::(\..){0,1}$)") == False) * drop_rows
 
     df = df[drop_rows].reset_index(drop=True)
