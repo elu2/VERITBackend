@@ -159,8 +159,8 @@ if __name__ == "__main__":
         to_run = pickle.load(f)
         if len(to_run) == 0:
             with open("runs.log", "a") as f:
-            time_now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-            f.write(f"{time_now} (GenProc.py) Nothing to do.\n")
+                time_now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                f.write(f"{time_now} (GenProc.py) Nothing to do.\n")
             sys.exit(0)
 
     # Read in and combine the two (new) important csv files.

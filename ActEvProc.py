@@ -14,8 +14,7 @@ import sys
 
 class TagStripper(HTMLParser):
     """ Use this class to strip markup and get the attributes of the tags as properties of the instance """
-
-    def __init__(self, data: str):
+    def __init__(self, data:str):
         super().__init__()
         self._raw_sentence = StringIO()
         self._data = data
@@ -31,8 +30,7 @@ class TagStripper(HTMLParser):
 
 
 def truncator(path):
-    df = pd.read_csv(path, sep='\t', header=0, quoting=csv.QUOTE_NONE,
-                     encoding='utf-8', dtype=str).astype(str)
+    df = pd.read_csv(path, sep='\t', header=0, quoting=csv.QUOTE_NONE, encoding='utf-8', dtype=str).astype(str)
     ev_df = df[spec_cols]
     return ev_df
 
@@ -42,8 +40,7 @@ def post_proc(df):
     df = df[df.CONTROLLER != "NONE"]
     df = df[df["EVENT LABEL"].str.contains("Regulation", na=False) == False]
     # Remove :uaz: rows
-    drop_rows = (df["INPUT"].str.contains(":uaz:") == False) * (df["OUTPUT"].str.contains(
-        ":uaz:") == False) * (df["CONTROLLER"].str.contains(":uaz:") == False)
+    drop_rows = (df["INPUT"].str.contains(":uaz:") == False) * (df["OUTPUT"].str.contains(":uaz:") == False) * (df["CONTROLLER"].str.contains(":uaz:") == False)
     # Remove two double colon species
     drop_rows = drop_rows * (df["OUTPUT"].str.contains('{') == False)
     df = df[drop_rows]
@@ -52,10 +49,9 @@ def post_proc(df):
     df["EVENT LABEL"] = df["EVENT LABEL"].replace({"Association (Positive)": "Activation (Positive)",
                                                    "Association (Negative)": "Activation (Negative)",
                                                    "Association (UNKNOWN)": "Inconclusive"})
-
+    
     # Remove HTML artifacts from evidence
-    df["EVIDENCE"] = df["EVIDENCE"].apply(
-        lambda x: TagStripper(x).raw_sentence)
+    df["EVIDENCE"] = df["EVIDENCE"].apply(lambda x: TagStripper(x).raw_sentence)
 
     return df
 
@@ -77,13 +73,12 @@ if __name__ == "__main__":
         to_run = pickle.load(f)
         if len(to_run) == 0:
             with open("runs.log", "a") as f:
-            time_now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-            f.write(f"{time_now} (ActEvProc.py) Nothing to do.\n")
+                time_now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                f.write(f"{time_now} (ActEvProc.py) Nothing to do.\n")
             sys.exit(0)
-
+    
     # Columns to concat on
-    spec_cols = ["INPUT", "OUTPUT", "CONTROLLER",
-                 "EVENT ID", "EVENT LABEL", "EVIDENCE", "SEEN IN"]
+    spec_cols = ["INPUT", "OUTPUT", "CONTROLLER", "EVENT ID", "EVENT LABEL", "EVIDENCE", "SEEN IN"]
 
     # Initialize empty file to append to
     init_df = pd.DataFrame(columns=spec_cols)
@@ -96,14 +91,13 @@ if __name__ == "__main__":
     to_run = [x for x in to_run if "PMC" in x]
     file_chunks = np.array_split(np.array(to_run), 40)
 
-    Parallel(n_jobs=-1)(delayed(concat_papers)(paper_list)
-                        for paper_list in file_chunks)
-
+    Parallel(n_jobs=-1)(delayed(concat_papers)(paper_list) for paper_list in file_chunks)
+    
     # post-processing of files
     aa_df = pd.read_csv("NewAllAct.csv", encoding='utf-8')
     aa_df = post_proc(aa_df)
     aa_df.to_csv("NewAllAct.csv", index=False)
-
+    
     with open("runs.log", "a") as f:
         time_now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         f.write(f"{time_now} (ActEvProc.py) Finished.\n")

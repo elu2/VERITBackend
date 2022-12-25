@@ -14,8 +14,7 @@ import sys
 
 class TagStripper(HTMLParser):
     """ Use this class to strip markup and get the attributes of the tags as properties of the instance """
-
-    def __init__(self, data: str):
+    def __init__(self, data:str):
         super().__init__()
         self._raw_sentence = StringIO()
         self._data = data
@@ -31,8 +30,7 @@ class TagStripper(HTMLParser):
 
 
 def truncator(path):
-    df = pd.read_csv(path, sep='\t', header=0, quoting=csv.QUOTE_NONE,
-                     encoding='utf-8', dtype=str).astype(str)
+    df = pd.read_csv(path, sep='\t', header=0, quoting=csv.QUOTE_NONE, encoding='utf-8', dtype=str).astype(str)
     ev_df = df[spec_cols]
     return ev_df
 
@@ -40,16 +38,13 @@ def truncator(path):
 def net_event(df):
     nc_df = df[df["EVENT LABEL"].str.contains("Activation") == False]
     id_df = nc_df[nc_df["CONTROLLER"] == "NONE"][["EVENT ID", "EVENT LABEL"]]
-    nc_df = nc_df.merge(id_df, left_on="INPUT",
-                        right_on="EVENT ID", suffixes=("", " INIT"))
+    nc_df = nc_df.merge(id_df, left_on="INPUT", right_on="EVENT ID", suffixes=("", " INIT"))
 
     # Define maps to replace values with
     map_dict_el = {"Regulation (Negative)": -1, "Regulation (Positive)": 1}
-    map_dict_eli = {"Transcription": 1, "Amount": 1,
-                    "DecreaseAmount": -1, "Ubiquitination": -1}
-    final_map = {1: "Activation (Positive)", -
-                 1: "Activation (Negative)", 0: "Inconclusive"}
-
+    map_dict_eli = {"Transcription": 1, "Amount": 1, "DecreaseAmount": -1, "Ubiquitination": -1}
+    final_map = {1: "Activation (Positive)", -1: "Activation (Negative)", 0: "Inconclusive"}
+    
     # Only some events are hardcoded. The others are treated as inconclusive
     all_events = list(set(nc_df["EVENT LABEL INIT"]))
     for event in all_events:
@@ -70,7 +65,7 @@ def net_event(df):
     # finally replace values
     nc_df = nc_df.replace({"EVENT LABEL": final_map})
     nc_df = nc_df.drop(["EVENT ID INIT", "EVENT LABEL INIT"], axis=1)
-
+    
     return nc_df
 
 
@@ -80,15 +75,13 @@ def post_proc(df):
     # Remove regulation event labels
     df = df[df["EVENT LABEL"].str.contains("Regulation", na=False) == False]
     # Remove :uaz: rows
-    drop_rows = (df["INPUT"].str.contains(":uaz:") == False) * (df["OUTPUT"].str.contains(
-        ":uaz:") == False) * (df["CONTROLLER"].str.contains(":uaz:") == False)
+    drop_rows = (df["INPUT"].str.contains(":uaz:") == False) * (df["OUTPUT"].str.contains(":uaz:") == False) * (df["CONTROLLER"].str.contains(":uaz:") == False)
     # Remove two double colon species
     drop_rows = drop_rows * (df["OUTPUT"].str.contains('{') == False)
 
     df = df[drop_rows]
-
-    df["EVIDENCE"] = df["EVIDENCE"].apply(
-        lambda x: TagStripper(x).raw_sentence)
+    
+    df["EVIDENCE"] = df["EVIDENCE"].apply(lambda x: TagStripper(x).raw_sentence)
 
     return df
 
@@ -112,13 +105,12 @@ if __name__ == "__main__":
         to_run = pickle.load(f)
         if len(to_run) == 0:
             with open("runs.log", "a") as f:
-            time_now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-            f.write(f"{time_now} (NCEvProc.py) Nothing to do.\n")
+                time_now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                f.write(f"{time_now} (NCEvProc.py) Nothing to do.\n")
             sys.exit(0)
 
     # Columns to concat on
-    spec_cols = ["INPUT", "OUTPUT", "CONTROLLER",
-                 "EVENT ID", "EVENT LABEL", "EVIDENCE", "SEEN IN"]
+    spec_cols = ["INPUT", "OUTPUT", "CONTROLLER", "EVENT ID", "EVENT LABEL", "EVIDENCE", "SEEN IN"]
 
     # Initialize empty file to append to
     init_df = pd.DataFrame(columns=spec_cols)
@@ -131,8 +123,7 @@ if __name__ == "__main__":
     to_run = [x for x in to_run if "PMC" in x]
     file_chunks = np.array_split(np.array(to_run), 40)
 
-    Parallel(n_jobs=-1)(delayed(concat_papers)(paper_list)
-                        for paper_list in file_chunks)
+    Parallel(n_jobs=-1)(delayed(concat_papers)(paper_list) for paper_list in file_chunks)
 
     # post-processing of files
     aa_df = pd.read_csv("NewAllNC.csv", encoding='utf-8')
