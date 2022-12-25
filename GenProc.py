@@ -4,6 +4,7 @@ import numpy as np
 import datetime
 import pickle
 import os
+import sys
 
 
 # Preprocessing concatenated papers by removing anomalies and separating id from name
@@ -129,6 +130,15 @@ def pagerank_nodes(nodes, edges):
 
 
 if __name__ == "__main__":
+    # If there were no new files detected
+    with open('torun.log.pkl', 'rb') as f:
+        to_run = pickle.load(f)
+        if len(to_run) == 0:
+            with open("runs.log", "a") as f:
+            time_now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            f.write(f"{time_now} (GenProc.py) Nothing to do.\n")
+            sys.exit(0)
+    
     # Read in and combine the two (new) important csv files.
     new_act_df = pd.read_csv('NewAllAct.csv', encoding='utf-8')
     new_nc_df = pd.read_csv("NewAllNC.csv", encoding='utf-8')

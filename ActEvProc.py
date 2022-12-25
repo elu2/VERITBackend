@@ -9,6 +9,7 @@ from io import StringIO
 import re
 import datetime
 import pickle
+import sys
 
 
 class TagStripper(HTMLParser):
@@ -67,6 +68,15 @@ def concat_papers(paper_list, paper_path="./papers_as_tsv/"):
 
 
 if __name__ == "__main__":
+    # If there were no new files detected
+    with open('torun.log.pkl', 'rb') as f:
+        to_run = pickle.load(f)
+        if len(to_run) == 0:
+            with open("runs.log", "a") as f:
+            time_now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            f.write(f"{time_now} (ActEvProc.py) Nothing to do.\n")
+            sys.exit(0)
+    
     # Columns to concat on
     spec_cols = ["INPUT", "OUTPUT", "CONTROLLER", "EVENT ID", "EVENT LABEL", "EVIDENCE", "SEEN IN"]
 
