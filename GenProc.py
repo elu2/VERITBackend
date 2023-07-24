@@ -123,6 +123,8 @@ def get_nodes(df):
 
     nodes = pd.concat([outputs, controllers]).drop_duplicates()
 
+    nodes["KB"] = nodes["Id"].str.split(":").str[0]
+
     return nodes
 
 
