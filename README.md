@@ -43,12 +43,13 @@ Below are the steps needed to regenerate or update the datasets used for VERIT. 
     * REACH and BIOGRID evidence are separated by "&&&"
     * Files are chunked into subdirectories to make AWS upload faster
     * After running, check that all files are present before going on to next steps
-  
+
 9. Create AWS S3 bucket
     * Keep default settings
-  
+
 11. Run `rclone_copy.slurm`
     * Uses `rclone` package to copy evidence `.txt` files from local directory to AWS S3 bucket
+    * Slurm job is used for memory and convenience
 
 12. Run `dbCombiner.py`
     * `databases` directory is included in this GitHub repo to produce the end file
