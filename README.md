@@ -38,9 +38,18 @@ Below are the steps needed to regenerate or update the datasets used for VERIT. 
     * Also generates a NetworkX graph (`BIOGRID_graph.pkl`) directly. Could adopt this for Reach as well, but minor thing
 
 8. Run `write_ev.py`
-    * 
+    * Writes the evidence for each edge into a separate `.txt` file
+    * Files are named `source_id`_`target_id`.txt
+    * REACH and BIOGRID evidence are separated by "&&&"
+    * Files are chunked into subdirectories to make AWS upload faster
+  
+9. Create AWS S3 bucket
+    * Keep default settings
+  
+11. Run `rclone_copy.slurm`
+    * Uses `rclone` package to copy evidence `.txt` files from local directory to AWS S3 bucket
 
-9. Run `dbCombiner.py`
+12. Run `dbCombiner.py`
     * `databases` directory is included in this GitHub repo to produce the end file
     * Borrows the knowledgebases that Reach grounds to in order to provide a fully inclusive set of identifiers
 
