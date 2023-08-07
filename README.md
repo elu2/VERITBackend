@@ -42,6 +42,7 @@ Below are the steps needed to regenerate or update the datasets used for VERIT. 
     * Files are named `source_id`_`target_id`.txt
     * REACH and BIOGRID evidence are separated by "&&&"
     * Files are chunked into subdirectories to make AWS upload faster
+    * After running, check that all files are present before going on to next steps
   
 9. Create AWS S3 bucket
     * Keep default settings
