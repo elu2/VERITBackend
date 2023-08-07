@@ -13,8 +13,12 @@
 base_dir="/xdisk/guangyao/michellewei/PMC_OA_Processed"
 #Number of subdirectories
 n_dir=18
+#Name of rclone remote
+rclone_remote="aws"
+#Name of AWS bucket
+aws_bucket="pmc-oa-biogrid"
 
 for i in {0..$n_dir};
 do
-    rclone copy ${base_dir}/ev_${i} aws:pmc-oa-biogrid --progress -vv --transfers=100
+    rclone copy ${base_dir}/ev_${i} ${rclone_remote}:${aws_bucket} --progress -vv --transfers=100
 done
